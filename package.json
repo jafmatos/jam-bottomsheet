@@ -38,8 +38,6 @@
 		"typecheck": "tsc",
 		"lint": "eslint \"**/*.{js,ts,tsx}\"",
 		"android": "react-native run-android",
-		"test:android": "harness run:android",
-		"test:ios": "harness run:ios",
 		"release": "release-it --only-version"
 	},
 	"keywords": [

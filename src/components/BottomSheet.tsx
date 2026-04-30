@@ -453,6 +453,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
           ]}
         >
           <Animated.View
+            testID="backdrop"
             style={{
               width: SCREEN_WIDTH,
               height: SCREEN_HEIGHT,
@@ -464,6 +465,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
             }}
           >
             <Pressable
+              testID="backdrop-pressable"
               style={{
                 width: '100%',
                 height: '100%',
@@ -477,6 +479,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
           </Animated.View>
 
           <Animated.View
+            testID="bottomsheet"
             style={[
               {
                 height: bottomSheetHeightSharedValue,
@@ -495,6 +498,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
           >
             {showHandle ? (
               <View
+                testID="bottomsheet-handle-container"
                 style={{
                   paddingTop: 16,
                   paddingBottom: 16,
@@ -504,6 +508,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
                 }}
               >
                 <View
+                  testID="bottomsheet-handle"
                   style={{
                     borderRadius: 2,
                     height: 4,
@@ -518,6 +523,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
             <GestureDetector gesture={panNative}>
               <ScrollView
+                testID="bottomsheet-scroll-view"
                 onLayout={(event) => {
                   scrollViewLayoutSizeSharedValue.value =
                     event.nativeEvent.layout.height;

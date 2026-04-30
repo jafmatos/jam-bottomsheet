@@ -1,0 +1,20 @@
+appId: com.example
+---
+- openLink: exp://192.168.1.10:8081
+# Tap whatever opens the bottom sheet
+- tapOn:
+    id: 'button_open-sheet'
+
+# Assert bottom sheet is visible
+- assertVisible:
+    id: "bottomsheet"
+
+# Optional: verify backdrop is visible too
+- assertVisible:
+    id: 'bottomsheet-scroll-view'
+
+# Optional: interact inside the sheet to ensure it's usable
+- tapOn:
+    id: 'bottomsheet-scroll-view'
+
+- stopApp
