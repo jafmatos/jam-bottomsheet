@@ -419,13 +419,16 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
       return {
         paddingBottom: isKeyboardOpenedSharedValue.value ? 0 : insets.bottom,
-        transform: [
-          {
-            translateY:
-              bottomSheetTranslateYSharedValue.value -
-              keyboardHeightSharedValue.value,
-          },
-        ],
+        bottom:
+          -bottomSheetTranslateYSharedValue.value +
+          keyboardHeightSharedValue.value,
+        // transform: [
+        //   {
+        //     translateY:
+        //       bottomSheetTranslateYSharedValue.value -
+        //       keyboardHeightSharedValue.value,
+        //   },
+        // ],
       };
     });
 
@@ -485,7 +488,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
                 height: bottomSheetHeightSharedValue,
                 width: SCREEN_WIDTH,
                 position: 'absolute',
-                bottom: 0,
+                // bottom: 0,
                 left: 0,
                 right: 0,
                 borderTopLeftRadius: borderRadius,

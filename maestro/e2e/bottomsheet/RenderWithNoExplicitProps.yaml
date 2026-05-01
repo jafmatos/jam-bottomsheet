@@ -5,13 +5,19 @@ appId: com.example
 - tapOn:
     id: 'button_open-sheet'
 
+- extendedWaitUntil:
+    visible: "Bottomsheet content"
+    timeout: 10000
+
+
 # Assert bottom sheet is visible
-- assertVisible:
-    id: "bottomsheet"
+# - assertVisible:
+#     id: "bottomsheet"
+- assertVisible: 'Bottomsheet content'
 
 # Optional: verify backdrop is visible too
 - assertVisible:
-    id: 'bottomsheet-scroll-view'
+    id: 'bottomsheet-backdrop'
 
 # Optional: interact inside the sheet to ensure it's usable
 - tapOn:
