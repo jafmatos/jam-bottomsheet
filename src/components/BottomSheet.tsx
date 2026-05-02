@@ -419,16 +419,13 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
       return {
         paddingBottom: isKeyboardOpenedSharedValue.value ? 0 : insets.bottom,
-        bottom:
-          -bottomSheetTranslateYSharedValue.value +
-          keyboardHeightSharedValue.value,
-        // transform: [
-        //   {
-        //     translateY:
-        //       bottomSheetTranslateYSharedValue.value -
-        //       keyboardHeightSharedValue.value,
-        //   },
-        // ],
+        transform: [
+          {
+            translateY:
+              bottomSheetTranslateYSharedValue.value -
+              keyboardHeightSharedValue.value,
+          },
+        ],
       };
     });
 
@@ -443,32 +440,34 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     return (
       <GestureDetector gesture={pan}>
         <Animated.View
+          testID="bottomsheet-container"
           style={[
             {
               width: SCREEN_WIDTH,
-              height: SCREEN_HEIGHT,
+              height: SCREEN_HEIGHT - insets.top,
               position: 'absolute',
-              top: 0,
-              left: 0,
+              // top: 0,
+              // left: 0,
+              bottom: 0,
               zIndex: 100,
+              pointerEvents: 'none',
             },
             containerAnimatedStyles,
           ]}
         >
           <Animated.View
-            testID="backdrop"
+            testID="bottomsheet-backdrop"
             style={{
               width: SCREEN_WIDTH,
               height: SCREEN_HEIGHT,
               position: 'absolute',
-              top: 0,
+              top: -insets.top,
               left: 0,
               backgroundColor: backdropColor,
               opacity: backdropOpacitySharedValue,
             }}
           >
             <Pressable
-              testID="backdrop-pressable"
               style={{
                 width: '100%',
                 height: '100%',
@@ -488,9 +487,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
                 height: bottomSheetHeightSharedValue,
                 width: SCREEN_WIDTH,
                 position: 'absolute',
-                // bottom: 0,
-                left: 0,
-                right: 0,
+                bottom: 0,
                 borderTopLeftRadius: borderRadius,
                 borderTopRightRadius: borderRadius,
                 boxShadow: `0 3px 7px 0 rgba(0, 0, 0, 0.5)`,

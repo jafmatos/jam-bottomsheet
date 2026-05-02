@@ -1,15 +1,25 @@
 import { useRef } from 'react';
-import { Button, Text } from 'react-native';
+import { Button, Text, View } from 'react-native';
 import { BottomSheet, type BottomSheetRef } from 'react-native-bottomsheet';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+	useSafeAreaInsets
+} from 'react-native-safe-area-context';
 
 function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheetRef>(null);
   const openBottomSheet = () => bottomSheetRef.current?.open();
   const closeBottomSheet = () => bottomSheetRef.current?.close();
 
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView>
+    <View
+      style={{
+        flex: 1,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+      }}
+    >
       <Button
         testID="button_open-sheet"
         title="Open sheet"
@@ -21,12 +31,10 @@ function HomeScreen() {
         onPress={closeBottomSheet}
       />
 
-			<Text>Test text</Text>
-
       <BottomSheet ref={bottomSheetRef}>
         <Text>Bottomsheet content</Text>
       </BottomSheet>
-    </SafeAreaView>
+    </View>
   );
 }
 
