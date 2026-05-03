@@ -530,7 +530,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
             <GestureDetector gesture={panNative}>
               <ScrollView
-                testID={makeTestId('bottomsheet-scroll-view')}
+                testID={makeTestId('bottomsheet-content')}
                 onLayout={(event) => {
                   scrollViewLayoutSizeSharedValue.value =
                     event.nativeEvent.layout.height;

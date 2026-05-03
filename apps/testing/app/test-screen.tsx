@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Button, View } from "react-native";
-import { type BottomSheetRef, BottomSheet } from "react-native-bottomsheet";
+import { type BottomSheetRef, BottomSheet, BottomSheetProps } from "react-native-bottomsheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGlobalSearchParams } from "expo-router";
 import { BottomSheetPropsAsString, searchParamsToBottomSheetProps } from "@/utils/searchParamsToBottomSheetProps";
@@ -14,23 +14,35 @@ enum ContentOptions {
   TextLong = "text:long",
 }
 
+const contentMap = new Map<ContentOptions, () => React.ReactElement>([
+  [ContentOptions.Empty, EmptyContent],
+  [ContentOptions.TextShort, ShortTextContent],
+  [ContentOptions.TextLong, LongTextContent],
+]);
+
 export default function TestScreen() {
   const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheetRef>(null);
   const openBottomSheet = () => bottomSheetRef.current?.open();
   const closeBottomSheet = () => bottomSheetRef.current?.close();
-  const params = useGlobalSearchParams<BottomSheetPropsAsString & { content: ContentOptions }>();
-  const bottomSheetProps = searchParamsToBottomSheetProps(params);
-  const contentMap = new Map<ContentOptions, () => React.JSX.Element>([
-    [ContentOptions.Empty, EmptyContent],
-    [ContentOptions.TextShort, ShortTextContent],
-    [ContentOptions.TextLong, LongTextContent],
-  ]);
-  const Content = contentMap.get(params.content) || EmptyContent;
+  const params = useGlobalSearchParams<{ props?: string }>();
 
-	useEffect(() => {
-		console.log(params)
-	}, [params])
+  const { content: contentOption, ...bottomSheetProps }: BottomSheetProps & { content: ContentOptions } = useMemo(() => {
+    if (!params.props) return {};
+
+    const decodedProps = decodeURIComponent(params.props);
+    const jsonProps = JSON.parse(decodedProps);
+
+    return jsonProps;
+  }, [params]);
+
+  const Content = useMemo(() => {
+    return contentMap.get(contentOption) || ShortTextContent;
+  }, [contentOption]);
+
+  useEffect(() => {
+    console.log(`Loading bottomsheet with props:\n${JSON.stringify(bottomSheetProps, null, 2)}`);
+  }, [bottomSheetProps]);
 
   return (
     <View

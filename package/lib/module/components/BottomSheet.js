@@ -263,9 +263,9 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
         testID: makeTestId('bottomsheet-backdrop'),
         style: {
           width: SCREEN_WIDTH,
-          height: SCREEN_HEIGHT / 2,
+          height: SCREEN_HEIGHT,
           position: 'absolute',
-          bottom: 0,
+          top: -insets.top,
           backgroundColor: backdropColor,
           opacity: backdropOpacitySharedValue
         },
@@ -312,7 +312,7 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
         }) : /*#__PURE__*/_jsx(_Fragment, {}), /*#__PURE__*/_jsx(GestureDetector, {
           gesture: panNative,
           children: /*#__PURE__*/_jsx(ScrollView, {
-            testID: makeTestId('bottomsheet-scroll-view'),
+            testID: makeTestId('bottomsheet-content'),
             onLayout: event => {
               scrollViewLayoutSizeSharedValue.value = event.nativeEvent.layout.height;
             },
