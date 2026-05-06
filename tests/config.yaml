@@ -1,3 +1,5 @@
-# config.yaml
+appId: com.jaf.matos.testing
+
 flows:
-  - e2e/flows/**/*.yaml
+  - "**/*.yaml"
+  - "*.yaml"

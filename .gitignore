@@ -1,5 +1,8 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
+tests/e2e/flows/**/*.js
+tests/e2e/screenshots/baselines
+
 # dependencies
 node_modules/
 

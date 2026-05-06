@@ -3,13 +3,14 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"test:build": "ts-node-dev -r tsconfig-paths/register transformer.ts"
+		"test": "ts-node-dev -r tsconfig-paths/register e2e/test.ts"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"description": "",
 	"devDependencies": {
+		"@types/node": "^25.6.0",
 		"tsconfig-paths": "^4.2.0",
 		"tscpaths": "^0.0.9",
 		"typescript": "^6.0.3"
@@ -17,7 +18,7 @@
 	"dependencies": {
 		"dotenv": "^17.4.2",
 		"fs-jetpack": "^5.1.0",
-		"react-native-bottomsheet": "file:../../package/react-native-bottomsheet-0.1.0.tgz",
+		"react-native-bottomsheet": "file:../package/react-native-bottomsheet-0.1.0.tgz",
 		"ts-node-dev": "^2.0.0"
 	}
 }

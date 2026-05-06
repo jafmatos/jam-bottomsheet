@@ -1,0 +1,31 @@
+appId: com.jaf.matos.testing
+tags: 
+  - gestures
+---
+- pressKey: Home
+- clearState
+
+- runScript: ./setup.js
+
+- openLink: ${output.url}
+
+- extendedWaitUntil:
+    visible:
+      id: "button_open-sheet"
+    timeout: 10000
+
+- tapOn:
+    id: "button_open-sheet"
+
+- assertVisible:
+    id: "bottomsheet"
+
+- swipe:
+    start: 90%, 50%
+    end: 90%, 65%
+    duration: 400
+
+- waitForAnimationToEnd
+
+- assertNotVisible:
+    id: "bottomsheet"

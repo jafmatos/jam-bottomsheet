@@ -1,0 +1,8 @@
+import { BottomSheetPropsBuilder } from "@e2e/utils/BottomSheetPropsBuilder";
+import { makeDeepLinkWithBottomSheetProps } from "@e2e/utils/makeDeepLinkWithBottomSheetProps";
+
+const props = BottomSheetPropsBuilder.one().withExpandable(false).withSnapPointsCollapsed(400).build();
+
+export default {
+  url: makeDeepLinkWithBottomSheetProps(props),
+};

@@ -5,7 +5,9 @@
 		"outDir": "./dist",
 		"module": "nodenext",
 		"target": "esnext",
-		"types": [],
+		"types": [
+			"node"
+		],
 		"baseUrl": ".",
 		"paths": {
 			"@e2e/*": [

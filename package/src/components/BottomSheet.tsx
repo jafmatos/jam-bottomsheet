@@ -1,21 +1,26 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useCallback, useImperativeHandle, useState } from 'react';
-import { Dimensions, Pressable, ScrollView, View } from 'react-native';
+import {
+  Dimensions,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  View,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useKeyboardHandler } from 'react-native-keyboard-controller';
-import { scheduleOnRN } from 'react-native-worklets';
+import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 export interface BottomSheetProps extends React.ComponentProps<
   typeof Animated.View
 > {
   children?: React.ReactNode;
-  testIdPrefix?: string;
   expandable?: boolean;
   fullscreen?: boolean;
   snapPointsCollapsed?: number;
@@ -25,10 +30,11 @@ export interface BottomSheetProps extends React.ComponentProps<
   backgroundColor?: string;
   borderRadius?: number;
   handleColor?: string;
-  showHandle?: boolean;
+  hideHandle?: boolean;
+  panSnapPoints?: number;
   animationDuration?: number;
   closeOnBackdropTap?: boolean;
-  panSnapPoints?: number;
+  dismissKeyboardOnClose?: boolean;
   onClose?: () => void;
   scrollViewContentContainerStyle?: React.ComponentProps<
     typeof ScrollView
@@ -46,51 +52,51 @@ const SCREEN_WIDTH = screenDimensions.width;
 
 export const BOTTOMSHEET_DEFAULT_PROPS: Pick<
   Required<BottomSheetProps>,
-  | 'testIdPrefix'
   | 'expandable'
   | 'fullscreen'
-  | 'closeOnBackdropTap'
   | 'snapPointsCollapsed'
-  | 'panSnapPoints'
   | 'backdropOpacity'
   | 'backdropColor'
   | 'backgroundColor'
   | 'borderRadius'
   | 'handleColor'
-  | 'showHandle'
+  | 'hideHandle'
+  | 'panSnapPoints'
   | 'animationDuration'
+  | 'closeOnBackdropTap'
+  | 'dismissKeyboardOnClose'
 > = {
-  testIdPrefix: '',
   expandable: false,
   fullscreen: false,
-  closeOnBackdropTap: true,
   snapPointsCollapsed: 400,
-  panSnapPoints: 100,
   backdropOpacity: 0.5,
   backdropColor: '#000000',
   backgroundColor: '#ffffff',
   borderRadius: 24,
   handleColor: '#000000',
-  showHandle: true,
+  hideHandle: false,
+  panSnapPoints: 100,
   animationDuration: 300,
+  closeOnBackdropTap: true,
+  dismissKeyboardOnClose: true,
 };
 
 export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
   function BottomSheet(
     {
-      testIdPrefix = BOTTOMSHEET_DEFAULT_PROPS.testIdPrefix,
       expandable = BOTTOMSHEET_DEFAULT_PROPS.expandable,
       fullscreen = BOTTOMSHEET_DEFAULT_PROPS.fullscreen,
-      closeOnBackdropTap = BOTTOMSHEET_DEFAULT_PROPS.closeOnBackdropTap,
       snapPointsCollapsed = BOTTOMSHEET_DEFAULT_PROPS.snapPointsCollapsed,
-      panSnapPoints = BOTTOMSHEET_DEFAULT_PROPS.panSnapPoints,
       backdropOpacity = BOTTOMSHEET_DEFAULT_PROPS.backdropOpacity,
       backdropColor = BOTTOMSHEET_DEFAULT_PROPS.backdropColor,
       backgroundColor = BOTTOMSHEET_DEFAULT_PROPS.backgroundColor,
       borderRadius = BOTTOMSHEET_DEFAULT_PROPS.borderRadius,
       handleColor = BOTTOMSHEET_DEFAULT_PROPS.handleColor,
-      showHandle = BOTTOMSHEET_DEFAULT_PROPS.showHandle,
+      hideHandle = BOTTOMSHEET_DEFAULT_PROPS.hideHandle,
+      panSnapPoints = BOTTOMSHEET_DEFAULT_PROPS.panSnapPoints,
       animationDuration = BOTTOMSHEET_DEFAULT_PROPS.animationDuration,
+      closeOnBackdropTap = BOTTOMSHEET_DEFAULT_PROPS.closeOnBackdropTap,
+      dismissKeyboardOnClose = BOTTOMSHEET_DEFAULT_PROPS.dismissKeyboardOnClose,
       ...props
     },
     ref
@@ -99,6 +105,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     const [isScrollViewOnStart, _setIsScrollViewOnStart] = useState(true);
     const [isScrollViewOnEnd, _setIsScrollViewOnEnd] = useState(true);
     const snapPointsScreen = SCREEN_HEIGHT - insets.top;
+    const snapPointsExpanded = props.snapPointsExpanded || snapPointsScreen;
     const bottomSheetOpenedTranslateY = 0;
 
     const setIsScrollViewOnStart = (value: boolean) => {
@@ -128,10 +135,6 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     const bottomSheetTranslateYSharedValue = useSharedValue(SCREEN_HEIGHT);
     const keyboardHeightSharedValue = useSharedValue(0);
     const backdropOpacitySharedValue = useSharedValue(0);
-
-    const makeTestId = (id: string) => {
-      return `${testIdPrefix}:${id}`;
-    };
 
     const calculateAvailableHeight = useCallback(
       (targetHeight: number) => {
@@ -170,6 +173,8 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
       ]
     );
 
+    const dismissKeyboard = () => Keyboard.dismiss();
+
     const open = useCallback(() => {
       'worklet';
 
@@ -197,6 +202,8 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     const close = useCallback(() => {
       'worklet';
 
+      dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
+
       isOpenSharedValue.value = false;
       isExpandedSharedValue.value = false;
 
@@ -214,9 +221,10 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
       isOpenSharedValue,
       isExpandedSharedValue,
       backdropOpacitySharedValue,
-      animationDuration,
       bottomSheetTranslateYSharedValue,
       bottomSheetHeightSharedValue.value,
+      dismissKeyboardOnClose,
+      animationDuration,
       props.onClose,
     ]);
 
@@ -241,7 +249,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     const expand = useCallback(() => {
       'worklet';
 
-      setBottomSheetHeightAnimated(snapPointsScreen);
+      setBottomSheetHeightAnimated(snapPointsExpanded);
 
       bottomSheetTranslateYSharedValue.value = withSpring(
         bottomSheetOpenedTranslateY,
@@ -253,15 +261,13 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
       bottomSheetTranslateYSharedValue,
       isExpandedSharedValue,
       setBottomSheetHeightAnimated,
-      snapPointsScreen,
+      snapPointsExpanded,
     ]);
 
     useImperativeHandle(ref, () => {
-      'worklet';
-
       return {
-        open: () => scheduleOnRN(open),
-        close: () => scheduleOnRN(close),
+        open: () => scheduleOnUI(open),
+        close: () => scheduleOnUI(close),
       };
     }, [open, close]);
 
@@ -286,7 +292,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
           keyboardHeightSharedValue.value = event.height;
 
           const expectedBottomSheetHeight = isExpandedSharedValue.value
-            ? snapPointsScreen
+            ? snapPointsExpanded
             : snapPointsCollapsed;
 
           setBottomSheetHeight(expectedBottomSheetHeight);
@@ -338,7 +344,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
       if (event.translationY < panSnapPoints) {
         setBottomSheetHeightAnimated(
-          isExpandedSharedValue.value ? snapPointsScreen : snapPointsCollapsed
+          isExpandedSharedValue.value ? snapPointsExpanded : snapPointsCollapsed
         );
 
         bottomSheetTranslateYSharedValue.value = withSpring(
@@ -347,8 +353,11 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
         );
       }
 
-      if (event.translationY >= snapPointsCollapsed / 2 + panSnapPoints)
+      if (event.translationY >= snapPointsCollapsed / 2 + panSnapPoints) {
         close();
+
+        return;
+      }
 
       if (event.translationY >= panSnapPoints && !isExpandedSharedValue.value)
         close();
@@ -450,26 +459,28 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     return (
       <GestureDetector gesture={pan}>
         <Animated.View
-          testID={makeTestId('bottomsheet-container')}
+          testID="bottomsheet-container"
           style={[
             {
               width: SCREEN_WIDTH,
               height: SCREEN_HEIGHT - insets.top,
               position: 'absolute',
-              bottom: 0,
+              top: insets.top,
               zIndex: 100,
-              pointerEvents: 'none',
             },
             containerAnimatedStyles,
           ]}
         >
           <Animated.View
-            testID={makeTestId('bottomsheet-backdrop')}
+            testID="bottomsheet-backdrop"
             style={{
               width: SCREEN_WIDTH,
               height: SCREEN_HEIGHT,
-              position: 'absolute',
-              top: -insets.top,
+              transform: [
+                {
+                  translateY: -insets.top,
+                },
+              ],
               backgroundColor: backdropColor,
               opacity: backdropOpacitySharedValue,
             }}
@@ -480,15 +491,13 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
                 height: '100%',
               }}
               onPress={() => {
-                if (!closeOnBackdropTap) return;
-
-                close();
+                if (closeOnBackdropTap) close();
               }}
             />
           </Animated.View>
 
           <Animated.View
-            testID={makeTestId('bottomsheet')}
+            testID="bottomsheet"
             style={[
               {
                 height: bottomSheetHeightSharedValue,
@@ -503,9 +512,9 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
               bottomSheetAnimatedStyles,
             ]}
           >
-            {showHandle ? (
+            {!hideHandle ? (
               <View
-                testID={makeTestId('bottomsheet-handle-container')}
+                testID="bottomsheet-handle-container"
                 style={{
                   paddingTop: 16,
                   paddingBottom: 16,
@@ -515,7 +524,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
                 }}
               >
                 <View
-                  testID={makeTestId('bottomsheet-handle')}
+                  testID="bottomsheet-handle"
                   style={{
                     borderRadius: 2,
                     height: 4,
@@ -530,7 +539,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
             <GestureDetector gesture={panNative}>
               <ScrollView
-                testID={makeTestId('bottomsheet-content')}
+                testID="bottomsheet-content"
                 onLayout={(event) => {
                   scrollViewLayoutSizeSharedValue.value =
                     event.nativeEvent.layout.height;
