@@ -7,6 +7,6 @@ const props = BottomSheetPropsBuilder.one().withExpandable(true).withSnapPointsC
 export default {
   url: makeDeepLinkWithBottomSheetProps({
     ...props,
-    content: "form",
+    content: BottomSheetContentOptions.Form,
   }),
 };
