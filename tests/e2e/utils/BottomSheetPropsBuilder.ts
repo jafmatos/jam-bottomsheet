@@ -99,6 +99,12 @@ export class BottomSheetPropsBuilder {
     return this;
   }
 
+  withDismissKeyboardOnClose(value: BottomSheetProps["dismissKeyboardOnClose"]) {
+    this.props.dismissKeyboardOnClose = value;
+
+    return this;
+  }
+
   build() {
     return this.props;
   }
