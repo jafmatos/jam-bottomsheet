@@ -36,9 +36,7 @@ export interface BottomSheetProps extends React.ComponentProps<
   closeOnBackdropTap?: boolean;
   dismissKeyboardOnClose?: boolean;
   onClose?: () => void;
-  scrollViewContentContainerStyle?: React.ComponentProps<
-    typeof ScrollView
-  >['style'];
+  scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
 }
 
 export interface BottomSheetRef {
@@ -466,8 +464,8 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
               height: SCREEN_HEIGHT - insets.top,
               position: 'absolute',
               top: insets.top,
-              zIndex: 100,
             },
+            props.style,
             containerAnimatedStyles,
           ]}
         >
@@ -539,18 +537,28 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
             <GestureDetector gesture={panNative}>
               <ScrollView
+                {...props.scrollViewContentContainerProps}
                 testID="bottomsheet-content"
                 onLayout={(event) => {
                   scrollViewLayoutSizeSharedValue.value =
                     event.nativeEvent.layout.height;
+
+                  props.scrollViewContentContainerProps?.onLayout?.(event);
                 }}
-                onContentSizeChange={(_width, height) => {
+                onContentSizeChange={(width, height) => {
                   if (height < scrollViewLayoutSizeSharedValue.value) {
                     setIsScrollViewOnStart(true);
                     setIsScrollViewOnEnd(true);
                   }
+
+                  props.scrollViewContentContainerProps?.onContentSizeChange?.(
+                    width,
+                    height
+                  );
                 }}
                 onScroll={(event) => {
+                  props.scrollViewContentContainerProps?.onScroll?.(event);
+
                   const layoutSize = event.nativeEvent.layoutMeasurement.height;
                   const contentOffset = event.nativeEvent.contentOffset.y;
                   const contentSize = event.nativeEvent.contentSize.height;
@@ -566,7 +574,6 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
                   );
                 }}
                 scrollEventThrottle={16}
-                contentContainerStyle={props.scrollViewContentContainerStyle}
               >
                 {props.children}
               </ScrollView>

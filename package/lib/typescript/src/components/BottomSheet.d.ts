@@ -18,7 +18,7 @@ export interface BottomSheetProps extends React.ComponentProps<typeof Animated.V
     closeOnBackdropTap?: boolean;
     dismissKeyboardOnClose?: boolean;
     onClose?: () => void;
-    scrollViewContentContainerStyle?: React.ComponentProps<typeof ScrollView>['style'];
+    scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
 }
 export interface BottomSheetRef {
     open: () => void;

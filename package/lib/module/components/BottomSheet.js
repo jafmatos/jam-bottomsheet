@@ -256,9 +256,8 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
         width: SCREEN_WIDTH,
         height: SCREEN_HEIGHT - insets.top,
         position: 'absolute',
-        top: insets.top,
-        zIndex: 100
-      }, containerAnimatedStyles],
+        top: insets.top
+      }, props.style, containerAnimatedStyles],
       children: [/*#__PURE__*/_jsx(Animated.View, {
         testID: "bottomsheet-backdrop",
         style: {
@@ -312,17 +311,21 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
         }) : /*#__PURE__*/_jsx(_Fragment, {}), /*#__PURE__*/_jsx(GestureDetector, {
           gesture: panNative,
           children: /*#__PURE__*/_jsx(ScrollView, {
+            ...props.scrollViewContentContainerProps,
             testID: "bottomsheet-content",
             onLayout: event => {
               scrollViewLayoutSizeSharedValue.value = event.nativeEvent.layout.height;
+              props.scrollViewContentContainerProps?.onLayout?.(event);
             },
-            onContentSizeChange: (_width, height) => {
+            onContentSizeChange: (width, height) => {
               if (height < scrollViewLayoutSizeSharedValue.value) {
                 setIsScrollViewOnStart(true);
                 setIsScrollViewOnEnd(true);
               }
+              props.scrollViewContentContainerProps?.onContentSizeChange?.(width, height);
             },
             onScroll: event => {
+              props.scrollViewContentContainerProps?.onScroll?.(event);
               const layoutSize = event.nativeEvent.layoutMeasurement.height;
               const contentOffset = event.nativeEvent.contentOffset.y;
               const contentSize = event.nativeEvent.contentSize.height;
@@ -333,7 +336,6 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
               setIsScrollViewOnEnd(Math.round(layoutSize + contentOffset) === Math.round(contentSize));
             },
             scrollEventThrottle: 16,
-            contentContainerStyle: props.scrollViewContentContainerStyle,
             children: props.children
           })
         })]

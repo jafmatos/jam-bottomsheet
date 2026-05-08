@@ -224,6 +224,7 @@ export default function App() {
 
 # Notes
 
+- It is recommended to use portals such as `@gorhom/portal` to avoid visual inconsistencies caused by parent layouts, such as safe areas, clipping, or stacking issues
 - The bottom sheet internally uses a `ScrollView`
 - Keyboard animations are handled automatically
 - Gesture conflicts with nested scrolling are handled internally
