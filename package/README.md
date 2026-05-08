@@ -47,13 +47,13 @@ npm install react-native-reanimated react-native-gesture-handler react-native-sa
 Make sure your app is wrapped with:
 
 ```tsx
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetProvider } from 'jam-bottomsheet';
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <BottomSheetProvider>
       {/* app */}
-    </GestureHandlerRootView>
+    </BottomSheetProvider>
   );
 }
 ```
