@@ -19,8 +19,13 @@ tags:
 
 - waitForAnimationToEnd
 
+- tapOn:
+    id: "form-input_description"
+
+- waitForAnimationToEnd
+
 - takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-collapsed-400h
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-collapsed-400h-with-form-and-keyboard
     cropOn:
       id: "bottomsheet"
 
@@ -32,6 +37,6 @@ tags:
 - waitForAnimationToEnd
 
 - takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-form-and-keyboard
     cropOn:
       id: "bottomsheet"

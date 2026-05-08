@@ -3,6 +3,7 @@ import { execSync } from "child_process";
 interface RunOptions {
   log?: boolean;
   shards?: number;
+  forwardArgs?: string;
   flowsDir: string;
   screenshotsDir: string;
 }
@@ -10,7 +11,7 @@ interface RunOptions {
 export class MaestroRunner {
   public static run(options: RunOptions) {
     try {
-      const command = `maestro test --config=config.yaml ${options.flowsDir} --shard-split=${options.shards} --env SCREENSHOTS_DIR=${options.screenshotsDir}`;
+      const command = `maestro test --config=config.yaml ${options.flowsDir} ${options.forwardArgs || ""} --env SCREENSHOTS_DIR=${options.screenshotsDir}`;
 
       options.log && console.log(command);
 

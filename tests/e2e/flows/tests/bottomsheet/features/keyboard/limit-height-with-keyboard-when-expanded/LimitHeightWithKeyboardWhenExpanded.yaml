@@ -1,9 +1,11 @@
 appId: com.jaf.matos.testing
+tags: 
+  - keyboard
 --- 
 - pressKey: Home
 - clearState
 
-- runScripts: ./script.js
+- runScript: ./setup.js
 
 - openLink: ${output.url}
 
@@ -30,7 +32,7 @@ appId: com.jaf.matos.testing
 - waitForAnimationToEnd
 
 - assertScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-keyboard
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-form-and-keyboard
     cropOn: 
       id: "bottomsheet"
     thresholdPercentage: 98

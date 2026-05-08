@@ -1,5 +1,5 @@
 {
-	"name": "react-native-bottomsheet",
+	"name": "jam-bottomsheet",
 	"version": "0.1.0",
 	"description": "A highly interactive bottomsheet component for React Native environments",
 	"main": "./lib/module/index.js",

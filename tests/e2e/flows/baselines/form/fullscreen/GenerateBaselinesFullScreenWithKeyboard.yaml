@@ -20,7 +20,7 @@ tags:
 - waitForAnimationToEnd
 
 - takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-with-form
     cropOn:
       id: "bottomsheet"
 
@@ -30,6 +30,6 @@ tags:
 - waitForAnimationToEnd
 
 - takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-with-keyboard
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-with-form-and-keyboard
     cropOn:
       id: "bottomsheet"

@@ -42,6 +42,21 @@ export default function TestScreen() {
     return contentMap.get(contentOption) || EmptyContent;
   }, [contentOption]);
 
+  const contentElement = useMemo(() => {
+    switch (contentOption) {
+      case ContentOptions.Empty:
+        return <EmptyContent />;
+      case ContentOptions.TextShort:
+        return <ShortTextContent />;
+      case ContentOptions.TextLong:
+        return <LongTextContent />;
+      case ContentOptions.Form:
+        return <FormContent />;
+      default:
+        return <EmptyContent />;
+    }
+  }, [contentOption]);
+
   return (
     <View
       style={{

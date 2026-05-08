@@ -5,7 +5,9 @@ export default function LongTextContent() {
     <View style={{ padding: 16, gap: 16 }}>
       {/* The Word Became Flesh */}
       <View style={{ gap: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: "700" }}>The Word Became Flesh</Text>
+        <Text testID="first-text-node" style={{ fontSize: 22, fontWeight: "700" }}>
+          The Word Became Flesh
+        </Text>
 
         <Text style={{ lineHeight: 22 }}>
           <Text style={{ fontWeight: "600" }}>1 </Text>
@@ -167,7 +169,8 @@ export default function LongTextContent() {
           The first thing Andrew did was to find his brother Simon and tell him, “We have found the Messiah” (that is, the Christ).
           <Text style={{ fontWeight: "600" }}> 42 </Text>
           And he brought him to Jesus.
-          {"\n\n"}Jesus looked at him and said, “You are Simon son of John. You will be called Cephas” (which, when translated, is Peter).{"\n"}
+          {"\n\n"}Jesus looked at him and said, “You are Simon son of John. You will be called Cephas” (which, when translated, is Peter).
+          {"\n"}
         </Text>
       </View>
 
@@ -201,7 +204,7 @@ export default function LongTextContent() {
           Then Nathanael declared, “Rabbi, you are the Son of God; you are the king of Israel.”
         </Text>
 
-        <Text style={{ lineHeight: 22 }}>
+        <Text testID="last-text-node" style={{ lineHeight: 22 }}>
           <Text style={{ fontWeight: "600" }}>50 </Text>
           Jesus said, “You believe because I told you I saw you under the fig tree. You will see greater things than that.”
           <Text style={{ fontWeight: "600" }}> 51 </Text>

@@ -22,13 +22,8 @@ appId: com.jaf.matos.testing
 
 - waitForAnimationToEnd
 
-# - takeScreenshot:
-#     path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h
-#     cropOn:
-#       id: "bottomsheet"
-
 - assertScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h.png
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-empty.png
     cropOn:
       id: bottomsheet
     thresholdPercentage: 98

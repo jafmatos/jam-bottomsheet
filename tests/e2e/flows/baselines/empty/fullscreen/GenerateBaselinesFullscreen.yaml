@@ -20,16 +20,6 @@ tags:
 - waitForAnimationToEnd
 
 - takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-with-form
-    cropOn:
-      id: "bottomsheet"
-
-- tapOn:
-    id: "form-input_description"
-
-- waitForAnimationToEnd
-
-- takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-with-form-with-keyboard
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-empty
     cropOn:
       id: "bottomsheet"

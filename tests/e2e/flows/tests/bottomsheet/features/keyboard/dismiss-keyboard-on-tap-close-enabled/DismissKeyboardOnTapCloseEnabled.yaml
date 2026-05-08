@@ -1,0 +1,6 @@
+appId: com.jaf.matos.testing
+tags: 
+  - keyboard
+---
+- pressKey: Home
+- clearState

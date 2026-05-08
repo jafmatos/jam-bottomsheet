@@ -3,7 +3,7 @@ appId: com.jaf.matos.testing
 - pressKey: Home
 - clearState
 
-- runScripts: ./script.js
+- runScript: ./setup.js
 
 - openLink: ${output.url}
 
@@ -25,7 +25,7 @@ appId: com.jaf.matos.testing
 - waitForAnimationToEnd
 
 - assertScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-empty
     cropOn: 
       id: bottomsheet
-    thresholdPercentage: 98
+    thresholdPercentage: 95

@@ -1,4 +1,5 @@
 appId: com.jaf.matos.testing
+testOutputDir: ./test-artifacts
 
 flows:
   - "**/*.yaml"

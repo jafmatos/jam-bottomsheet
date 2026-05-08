@@ -114,7 +114,6 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
       duration: animationDuration
     }, () => {
       props.onClose && scheduleOnRN(props.onClose);
-      // dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
     });
   }, [isOpenSharedValue, isExpandedSharedValue, backdropOpacitySharedValue, bottomSheetTranslateYSharedValue, bottomSheetHeightSharedValue.value, dismissKeyboardOnClose, animationDuration, props.onClose]);
   const collapse = useCallback(() => {
