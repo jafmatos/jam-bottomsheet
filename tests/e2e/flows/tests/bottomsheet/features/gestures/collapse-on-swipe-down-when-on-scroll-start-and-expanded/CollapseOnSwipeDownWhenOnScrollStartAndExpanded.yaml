@@ -1,0 +1,55 @@
+appId: com.testing.jaf.matos
+tags: 
+  - gestures
+  - scroll
+---
+- pressKey: Home
+- clearState
+
+- runScript: ./setup.js
+
+- openLink: ${output.url}
+
+- extendedWaitUntil:
+    visible:
+      id: "button_open-sheet"
+    timeout: 10000
+
+- tapOn: 
+    id: "button_open-sheet"
+
+- extendedWaitUntil:
+    visible:
+      id: "first-text-node"
+    timeout: 10000
+
+- swipe:
+    start: 90%, 40%
+    end: 90%, 20%
+    duration: 200
+
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "first-text-node"
+    timeout: 10000
+
+- swipe:
+    start: 90%, 35%
+    end: 90%, 50%
+    duration: 200
+
+- extendedWaitUntil:
+    visible:
+      id: "first-text-node"
+    timeout: 10000
+
+- waitForAnimationToEnd
+
+- assertScreenshot:
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-400h-long-text.png
+    cropOn:
+      id: "bottomsheet"
+    thresholdPercentage: 98
+

@@ -7,12 +7,14 @@ import EmptyContent from "@/components/contents/EmptyContent";
 import ShortTextContent from "@/components/contents/ShortTextContent";
 import LongTextContent from "@/components/contents/LongTextContent";
 import { FormContent } from "@/components/contents/FormContent";
+import { GalleryContent } from "@/components/contents/GalleryContent";
 
 enum ContentOptions {
   Empty = "empty",
   TextShort = "text:short",
   TextLong = "text:long",
   Form = "form",
+	Gallery = "gallery",
 }
 
 const contentMap = new Map<ContentOptions, () => React.ReactElement>([
@@ -20,6 +22,7 @@ const contentMap = new Map<ContentOptions, () => React.ReactElement>([
   [ContentOptions.TextShort, ShortTextContent],
   [ContentOptions.TextLong, LongTextContent],
   [ContentOptions.Form, FormContent],
+  [ContentOptions.Gallery, GalleryContent],
 ]);
 
 export default function TestScreen() {

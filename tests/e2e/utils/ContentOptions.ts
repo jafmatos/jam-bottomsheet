@@ -3,4 +3,5 @@ export enum BottomSheetContentOptions {
   TextShort = "text:short",
   TextLong = "text:long",
   Form = "form",
+	Gallery = "gallery",
 }
