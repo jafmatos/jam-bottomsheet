@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 
 export default function LongTextContent() {
   return (
-    <View style={{ padding: 16, gap: 16 }}>
+    <View testID="long-text-content" style={{ padding: 16, gap: 16 }}>
       {/* The Word Became Flesh */}
       <View style={{ gap: 8 }}>
         <Text testID="first-text-node" style={{ fontSize: 22, fontWeight: "700" }}>

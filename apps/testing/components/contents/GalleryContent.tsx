@@ -4,9 +4,13 @@ export const GalleryContent = () => {
   const colors = ["red", "yellow", "blue", "purple", "green"];
 
   return (
-
     <FlatList
+      testID="gallery-content"
+      contentContainerStyle={{
+        padding: 16,
+      }}
       horizontal
+      showsHorizontalScrollIndicator={false}
       data={colors}
       ItemSeparatorComponent={() => {
         return (

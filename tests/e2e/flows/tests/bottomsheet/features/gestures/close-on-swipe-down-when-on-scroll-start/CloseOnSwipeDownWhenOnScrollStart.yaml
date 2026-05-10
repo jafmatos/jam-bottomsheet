@@ -1,4 +1,4 @@
-appId: com.testing.jaf.matos
+appId: com.jaf.matos.testing
 tags: 
   - gestures
   - scroll
@@ -18,15 +18,18 @@ tags:
 - tapOn: 
     id: "button_open-sheet"
 
+- waitForAnimationToEnd
+
 - extendedWaitUntil:
     visible:
       id: "first-text-node"
     timeout: 10000
         
 - swipe:
-    start: 90%, 70%
-    end: 90%, 90%
-    duration: 200
+    from: 
+      id: "bottomsheet"
+    direction: DOWN
+    duration: 400
 
 - waitForAnimationToEnd
 

@@ -1,7 +1,7 @@
 "use strict";
 
 /* eslint-disable react-native/no-inline-styles */
-import React, { useCallback, useImperativeHandle, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, Keyboard, Pressable, ScrollView, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,9 +25,11 @@ export const BOTTOMSHEET_DEFAULT_PROPS = {
   panSnapPoints: 100,
   animationDuration: 300,
   closeOnBackdropTap: true,
+  captureGestureOnScrollStart: true,
+  captureGestureOnScrollEnd: true,
   dismissKeyboardOnClose: true
 };
-export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
+export const BottomSheet = ({
   expandable = BOTTOMSHEET_DEFAULT_PROPS.expandable,
   fullscreen = BOTTOMSHEET_DEFAULT_PROPS.fullscreen,
   snapPointsCollapsed = BOTTOMSHEET_DEFAULT_PROPS.snapPointsCollapsed,
@@ -41,8 +43,10 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
   animationDuration = BOTTOMSHEET_DEFAULT_PROPS.animationDuration,
   closeOnBackdropTap = BOTTOMSHEET_DEFAULT_PROPS.closeOnBackdropTap,
   dismissKeyboardOnClose = BOTTOMSHEET_DEFAULT_PROPS.dismissKeyboardOnClose,
+  captureGestureOnScrollStart = BOTTOMSHEET_DEFAULT_PROPS.captureGestureOnScrollStart,
+  captureGestureOnScrollEnd = BOTTOMSHEET_DEFAULT_PROPS.captureGestureOnScrollEnd,
   ...props
-}, ref) {
+}) => {
   const insets = useSafeAreaInsets();
   const [isScrollViewOnStart, _setIsScrollViewOnStart] = useState(true);
   const [isScrollViewOnEnd, _setIsScrollViewOnEnd] = useState(true);
@@ -134,12 +138,9 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     });
     isExpandedSharedValue.value = true;
   }, [animationDuration, bottomSheetTranslateYSharedValue, isExpandedSharedValue, setBottomSheetHeightAnimated, snapPointsExpanded]);
-  useImperativeHandle(ref, () => {
-    return {
-      open: () => scheduleOnUI(open),
-      close: () => scheduleOnUI(close)
-    };
-  }, [open, close]);
+  useEffect(() => {
+    props.isOpen ? scheduleOnUI(open) : scheduleOnUI(close);
+  }, [props.isOpen, open, close]);
   useKeyboardHandler({
     onStart: () => {
       'worklet';
@@ -226,8 +227,8 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
   };
   const panDown = Gesture.Pan().onBegin(panDownGestureOnBeginCallback).onChange(panDownGestureOnChangeCallback).onFinalize(panDownGestureOnFinalizeCallback);
   const panUp = Gesture.Pan().onBegin(panUpGestureOnBeginCallback).onChange(panUpGestureOnChangeCallback).onFinalize(panUpGestureOnFinalizeCallback);
-  const nativePanDown = Gesture.Pan().onBegin(panDownGestureOnBeginCallback).onChange(panDownGestureOnChangeCallback).onFinalize(panDownGestureOnFinalizeCallback).enabled(isScrollViewOnStart);
-  const nativePanUp = Gesture.Pan().onBegin(panUpGestureOnBeginCallback).onChange(panUpGestureOnChangeCallback).onFinalize(panUpGestureOnFinalizeCallback).enabled(isScrollViewOnEnd);
+  const nativePanDown = Gesture.Pan().onBegin(panDownGestureOnBeginCallback).onChange(panDownGestureOnChangeCallback).onFinalize(panDownGestureOnFinalizeCallback).enabled(captureGestureOnScrollStart && isScrollViewOnStart);
+  const nativePanUp = Gesture.Pan().onBegin(panUpGestureOnBeginCallback).onChange(panUpGestureOnChangeCallback).onFinalize(panUpGestureOnFinalizeCallback).enabled(captureGestureOnScrollEnd && isScrollViewOnEnd);
   const pan = Gesture.Simultaneous(panDown, panUp);
   const native = Gesture.Native().blocksExternalGesture(panDown, panUp);
   const panNative = Gesture.Simultaneous(native, nativePanDown, nativePanUp);
@@ -342,5 +343,5 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
       })]
     })
   });
-});
+};
 //# sourceMappingURL=BottomSheet.js.map

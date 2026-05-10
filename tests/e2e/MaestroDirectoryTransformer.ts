@@ -24,7 +24,7 @@ export class MaestroDirectoryTransformer {
 
       if (fileGenerations.errors.length) {
         fileGenerations.errors.forEach((error, index) => {
-          console.error(`\n[Error ${index + 1}] - ${error.path}\n\t${error.message.split("\n")[0]}`);
+          console.error(`\n[Error ${index + 1}] - ${error.path}\n\t${error.message}`);
         });
 
         return;

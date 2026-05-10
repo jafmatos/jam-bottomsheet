@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useCallback, useImperativeHandle, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Dimensions,
   Keyboard,
@@ -20,6 +20,8 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 export interface BottomSheetProps extends React.ComponentProps<
   typeof Animated.View
 > {
+  isOpen?: boolean;
+  onClose?: () => void;
   children?: React.ReactNode;
   expandable?: boolean;
   fullscreen?: boolean;
@@ -35,13 +37,9 @@ export interface BottomSheetProps extends React.ComponentProps<
   animationDuration?: number;
   closeOnBackdropTap?: boolean;
   dismissKeyboardOnClose?: boolean;
-  onClose?: () => void;
+  captureGestureOnScrollStart?: boolean;
+  captureGestureOnScrollEnd?: boolean;
   scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
-}
-
-export interface BottomSheetRef {
-  open: () => void;
-  close: () => void;
 }
 
 const screenDimensions = Dimensions.get('screen');
@@ -62,6 +60,8 @@ export const BOTTOMSHEET_DEFAULT_PROPS: Pick<
   | 'panSnapPoints'
   | 'animationDuration'
   | 'closeOnBackdropTap'
+  | 'captureGestureOnScrollStart'
+  | 'captureGestureOnScrollEnd'
   | 'dismissKeyboardOnClose'
 > = {
   expandable: false,
@@ -76,511 +76,503 @@ export const BOTTOMSHEET_DEFAULT_PROPS: Pick<
   panSnapPoints: 100,
   animationDuration: 300,
   closeOnBackdropTap: true,
+  captureGestureOnScrollStart: true,
+  captureGestureOnScrollEnd: true,
   dismissKeyboardOnClose: true,
 };
 
-export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
-  function BottomSheet(
-    {
-      expandable = BOTTOMSHEET_DEFAULT_PROPS.expandable,
-      fullscreen = BOTTOMSHEET_DEFAULT_PROPS.fullscreen,
-      snapPointsCollapsed = BOTTOMSHEET_DEFAULT_PROPS.snapPointsCollapsed,
-      backdropOpacity = BOTTOMSHEET_DEFAULT_PROPS.backdropOpacity,
-      backdropColor = BOTTOMSHEET_DEFAULT_PROPS.backdropColor,
-      backgroundColor = BOTTOMSHEET_DEFAULT_PROPS.backgroundColor,
-      borderRadius = BOTTOMSHEET_DEFAULT_PROPS.borderRadius,
-      handleColor = BOTTOMSHEET_DEFAULT_PROPS.handleColor,
-      hideHandle = BOTTOMSHEET_DEFAULT_PROPS.hideHandle,
-      panSnapPoints = BOTTOMSHEET_DEFAULT_PROPS.panSnapPoints,
-      animationDuration = BOTTOMSHEET_DEFAULT_PROPS.animationDuration,
-      closeOnBackdropTap = BOTTOMSHEET_DEFAULT_PROPS.closeOnBackdropTap,
-      dismissKeyboardOnClose = BOTTOMSHEET_DEFAULT_PROPS.dismissKeyboardOnClose,
-      ...props
+export const BottomSheet = ({
+  expandable = BOTTOMSHEET_DEFAULT_PROPS.expandable,
+  fullscreen = BOTTOMSHEET_DEFAULT_PROPS.fullscreen,
+  snapPointsCollapsed = BOTTOMSHEET_DEFAULT_PROPS.snapPointsCollapsed,
+  backdropOpacity = BOTTOMSHEET_DEFAULT_PROPS.backdropOpacity,
+  backdropColor = BOTTOMSHEET_DEFAULT_PROPS.backdropColor,
+  backgroundColor = BOTTOMSHEET_DEFAULT_PROPS.backgroundColor,
+  borderRadius = BOTTOMSHEET_DEFAULT_PROPS.borderRadius,
+  handleColor = BOTTOMSHEET_DEFAULT_PROPS.handleColor,
+  hideHandle = BOTTOMSHEET_DEFAULT_PROPS.hideHandle,
+  panSnapPoints = BOTTOMSHEET_DEFAULT_PROPS.panSnapPoints,
+  animationDuration = BOTTOMSHEET_DEFAULT_PROPS.animationDuration,
+  closeOnBackdropTap = BOTTOMSHEET_DEFAULT_PROPS.closeOnBackdropTap,
+  dismissKeyboardOnClose = BOTTOMSHEET_DEFAULT_PROPS.dismissKeyboardOnClose,
+  captureGestureOnScrollStart = BOTTOMSHEET_DEFAULT_PROPS.captureGestureOnScrollStart,
+  captureGestureOnScrollEnd = BOTTOMSHEET_DEFAULT_PROPS.captureGestureOnScrollEnd,
+  ...props
+}: BottomSheetProps) => {
+  const insets = useSafeAreaInsets();
+  const [isScrollViewOnStart, _setIsScrollViewOnStart] = useState(true);
+  const [isScrollViewOnEnd, _setIsScrollViewOnEnd] = useState(true);
+  const snapPointsScreen = SCREEN_HEIGHT - insets.top;
+  const snapPointsExpanded = props.snapPointsExpanded || snapPointsScreen;
+  const bottomSheetOpenedTranslateY = 0;
+
+  const setIsScrollViewOnStart = (value: boolean) => {
+    if (value === isScrollViewOnStart) return;
+
+    _setIsScrollViewOnStart(value);
+  };
+
+  const setIsScrollViewOnEnd = (value: boolean) => {
+    if (value === isScrollViewOnEnd) return;
+
+    _setIsScrollViewOnEnd(value);
+  };
+
+  if (fullscreen) snapPointsCollapsed = snapPointsScreen;
+
+  const isOpenSharedValue = useSharedValue(false);
+  const isExpandedSharedValue = useSharedValue(false);
+  const isKeyboardOpenedSharedValue = useSharedValue(false);
+  const isKeyboardOpeningSharedValue = useSharedValue(false);
+  const isKeyboardClosedSharedValue = useSharedValue(false);
+  const isKeyboardClosingSharedValue = useSharedValue(false);
+  const scrollViewContentSizeSharedValue = useSharedValue(0);
+  const scrollViewLayoutSizeSharedValue = useSharedValue(0);
+  const scrollViewContentOffsetSharedValue = useSharedValue(0);
+  const bottomSheetHeightSharedValue = useSharedValue(snapPointsCollapsed);
+  const bottomSheetTranslateYSharedValue = useSharedValue(SCREEN_HEIGHT);
+  const keyboardHeightSharedValue = useSharedValue(0);
+  const backdropOpacitySharedValue = useSharedValue(0);
+
+  const calculateAvailableHeight = useCallback(
+    (targetHeight: number) => {
+      'worklet';
+
+      return Math.min(
+        targetHeight,
+        snapPointsScreen - keyboardHeightSharedValue.value
+      );
     },
-    ref
-  ) {
-    const insets = useSafeAreaInsets();
-    const [isScrollViewOnStart, _setIsScrollViewOnStart] = useState(true);
-    const [isScrollViewOnEnd, _setIsScrollViewOnEnd] = useState(true);
-    const snapPointsScreen = SCREEN_HEIGHT - insets.top;
-    const snapPointsExpanded = props.snapPointsExpanded || snapPointsScreen;
-    const bottomSheetOpenedTranslateY = 0;
+    [keyboardHeightSharedValue.value, snapPointsScreen]
+  );
 
-    const setIsScrollViewOnStart = (value: boolean) => {
-      if (value === isScrollViewOnStart) return;
-
-      _setIsScrollViewOnStart(value);
-    };
-
-    const setIsScrollViewOnEnd = (value: boolean) => {
-      if (value === isScrollViewOnEnd) return;
-
-      _setIsScrollViewOnEnd(value);
-    };
-
-    if (fullscreen) snapPointsCollapsed = snapPointsScreen;
-
-    const isOpenSharedValue = useSharedValue(false);
-    const isExpandedSharedValue = useSharedValue(false);
-    const isKeyboardOpenedSharedValue = useSharedValue(false);
-    const isKeyboardOpeningSharedValue = useSharedValue(false);
-    const isKeyboardClosedSharedValue = useSharedValue(false);
-    const isKeyboardClosingSharedValue = useSharedValue(false);
-    const scrollViewContentSizeSharedValue = useSharedValue(0);
-    const scrollViewLayoutSizeSharedValue = useSharedValue(0);
-    const scrollViewContentOffsetSharedValue = useSharedValue(0);
-    const bottomSheetHeightSharedValue = useSharedValue(snapPointsCollapsed);
-    const bottomSheetTranslateYSharedValue = useSharedValue(SCREEN_HEIGHT);
-    const keyboardHeightSharedValue = useSharedValue(0);
-    const backdropOpacitySharedValue = useSharedValue(0);
-
-    const calculateAvailableHeight = useCallback(
-      (targetHeight: number) => {
-        'worklet';
-
-        return Math.min(
-          targetHeight,
-          snapPointsScreen - keyboardHeightSharedValue.value
-        );
-      },
-      [keyboardHeightSharedValue.value, snapPointsScreen]
-    );
-
-    const setBottomSheetHeight = useCallback(
-      (height: number) => {
-        'worklet';
-
-        bottomSheetHeightSharedValue.value = calculateAvailableHeight(height);
-      },
-      [bottomSheetHeightSharedValue, calculateAvailableHeight]
-    );
-
-    const setBottomSheetHeightAnimated = useCallback(
-      (height: number) => {
-        'worklet';
-
-        bottomSheetHeightSharedValue.value = withSpring(
-          calculateAvailableHeight(height),
-          { duration: animationDuration }
-        );
-      },
-      [
-        animationDuration,
-        bottomSheetHeightSharedValue,
-        calculateAvailableHeight,
-      ]
-    );
-
-    const dismissKeyboard = () => Keyboard.dismiss();
-
-    const open = useCallback(() => {
+  const setBottomSheetHeight = useCallback(
+    (height: number) => {
       'worklet';
 
-      isOpenSharedValue.value = true;
+      bottomSheetHeightSharedValue.value = calculateAvailableHeight(height);
+    },
+    [bottomSheetHeightSharedValue, calculateAvailableHeight]
+  );
 
-      setBottomSheetHeight(snapPointsCollapsed);
+  const setBottomSheetHeightAnimated = useCallback(
+    (height: number) => {
+      'worklet';
 
-      backdropOpacitySharedValue.value = withSpring(backdropOpacity, {
-        duration: animationDuration,
-      });
-      bottomSheetTranslateYSharedValue.value = withSpring(
-        bottomSheetOpenedTranslateY,
+      bottomSheetHeightSharedValue.value = withSpring(
+        calculateAvailableHeight(height),
         { duration: animationDuration }
       );
-    }, [
-      isOpenSharedValue,
-      setBottomSheetHeight,
-      snapPointsCollapsed,
-      backdropOpacitySharedValue,
-      backdropOpacity,
-      animationDuration,
-      bottomSheetTranslateYSharedValue,
-    ]);
+    },
+    [animationDuration, bottomSheetHeightSharedValue, calculateAvailableHeight]
+  );
 
-    const close = useCallback(() => {
-      'worklet';
+  const dismissKeyboard = () => Keyboard.dismiss();
 
-      dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
+  const open = useCallback(() => {
+    'worklet';
 
-      isOpenSharedValue.value = false;
-      isExpandedSharedValue.value = false;
+    isOpenSharedValue.value = true;
 
-      backdropOpacitySharedValue.value = withSpring(0, {
-        duration: animationDuration,
-      });
-      bottomSheetTranslateYSharedValue.value = withSpring(
-        bottomSheetHeightSharedValue.value,
-        { duration: animationDuration },
-        () => {
-          props.onClose && scheduleOnRN(props.onClose);
-        }
-      );
-    }, [
-      isOpenSharedValue,
-      isExpandedSharedValue,
-      backdropOpacitySharedValue,
-      bottomSheetTranslateYSharedValue,
-      bottomSheetHeightSharedValue.value,
-      dismissKeyboardOnClose,
-      animationDuration,
-      props.onClose,
-    ]);
+    setBottomSheetHeight(snapPointsCollapsed);
 
-    const collapse = useCallback(() => {
-      'worklet';
-
-      setBottomSheetHeightAnimated(snapPointsCollapsed);
-
-      bottomSheetTranslateYSharedValue.value = withSpring(
-        bottomSheetOpenedTranslateY,
-        { duration: animationDuration }
-      );
-      isExpandedSharedValue.value = false;
-    }, [
-      animationDuration,
-      bottomSheetTranslateYSharedValue,
-      isExpandedSharedValue,
-      setBottomSheetHeightAnimated,
-      snapPointsCollapsed,
-    ]);
-
-    const expand = useCallback(() => {
-      'worklet';
-
-      setBottomSheetHeightAnimated(snapPointsExpanded);
-
-      bottomSheetTranslateYSharedValue.value = withSpring(
-        bottomSheetOpenedTranslateY,
-        { duration: animationDuration }
-      );
-      isExpandedSharedValue.value = true;
-    }, [
-      animationDuration,
-      bottomSheetTranslateYSharedValue,
-      isExpandedSharedValue,
-      setBottomSheetHeightAnimated,
-      snapPointsExpanded,
-    ]);
-
-    useImperativeHandle(ref, () => {
-      return {
-        open: () => scheduleOnUI(open),
-        close: () => scheduleOnUI(close),
-      };
-    }, [open, close]);
-
-    useKeyboardHandler(
-      {
-        onStart: () => {
-          'worklet';
-
-          if (!isKeyboardOpenedSharedValue.value) {
-            isKeyboardOpeningSharedValue.value = true;
-            isKeyboardClosingSharedValue.value = false;
-            isKeyboardClosedSharedValue.value = false;
-          } else {
-            isKeyboardOpeningSharedValue.value = false;
-            isKeyboardClosingSharedValue.value = true;
-            isKeyboardOpenedSharedValue.value = false;
-          }
-        },
-        onMove: (event) => {
-          'worklet';
-
-          keyboardHeightSharedValue.value = event.height;
-
-          const expectedBottomSheetHeight = isExpandedSharedValue.value
-            ? snapPointsExpanded
-            : snapPointsCollapsed;
-
-          setBottomSheetHeight(expectedBottomSheetHeight);
-        },
-        onEnd: () => {
-          'worklet';
-
-          if (isKeyboardOpeningSharedValue.value) {
-            isKeyboardOpenedSharedValue.value = true;
-            isKeyboardOpeningSharedValue.value = false;
-          }
-
-          if (isKeyboardClosingSharedValue.value) {
-            isKeyboardClosedSharedValue.value = true;
-            isKeyboardClosingSharedValue.value = false;
-          }
-        },
-      },
-      []
-    );
-
-    const panDownGestureOnBeginCallback: NonNullable<
-      Parameters<ReturnType<typeof Gesture.Pan>['onBegin']>[0]
-    > = () => {
-      'worklet';
-    };
-
-    const panDownGestureOnChangeCallback: NonNullable<
-      Parameters<ReturnType<typeof Gesture.Pan>['onChange']>[0]
-    > = (event) => {
-      'worklet';
-
-      if (event.translationY < 0) return;
-
-      bottomSheetTranslateYSharedValue.value = withSpring(
-        bottomSheetOpenedTranslateY + event.translationY,
-        {
-          duration: animationDuration,
-        }
-      );
-    };
-
-    const panDownGestureOnFinalizeCallback: NonNullable<
-      Parameters<ReturnType<typeof Gesture.Pan>['onFinalize']>[0]
-    > = (event) => {
-      'worklet';
-
-      if (event.translationY < 0) return;
-
-      if (event.translationY < panSnapPoints) {
-        setBottomSheetHeightAnimated(
-          isExpandedSharedValue.value ? snapPointsExpanded : snapPointsCollapsed
-        );
-
-        bottomSheetTranslateYSharedValue.value = withSpring(
-          bottomSheetOpenedTranslateY,
-          { duration: animationDuration }
-        );
-      }
-
-      if (event.translationY >= snapPointsCollapsed / 2 + panSnapPoints) {
-        close();
-
-        return;
-      }
-
-      if (event.translationY >= panSnapPoints && !isExpandedSharedValue.value)
-        close();
-
-      if (event.translationY >= panSnapPoints && isExpandedSharedValue.value)
-        collapse();
-    };
-
-    const panUpGestureOnBeginCallback: NonNullable<
-      Parameters<ReturnType<typeof Gesture.Pan>['onBegin']>[0]
-    > = () => {
-      'worklet';
-    };
-
-    const panUpGestureOnChangeCallback: NonNullable<
-      Parameters<ReturnType<typeof Gesture.Pan>['onChange']>[0]
-    > = (event) => {
-      'worklet';
-
-      if (event.translationY > 0 || fullscreen) return;
-
-      if (!expandable) {
-        setBottomSheetHeightAnimated(
-          snapPointsCollapsed + Math.abs(event.translationY / 5)
-        );
-      }
-
-      if (expandable && !isExpandedSharedValue.value) {
-        setBottomSheetHeightAnimated(
-          snapPointsCollapsed + Math.abs(event.translationY)
-        );
-      }
-    };
-
-    const panUpGestureOnFinalizeCallback: NonNullable<
-      Parameters<ReturnType<typeof Gesture.Pan>['onFinalize']>[0]
-    > = (event) => {
-      'worklet';
-
-      if (event.translationY > 0 || isExpandedSharedValue.value || fullscreen)
-        return;
-
-      if (event.translationY > -panSnapPoints) collapse();
-
-      if (event.translationY <= -panSnapPoints && !expandable) collapse();
-
-      if (event.translationY <= -panSnapPoints && expandable) expand();
-    };
-
-    const panDown = Gesture.Pan()
-      .onBegin(panDownGestureOnBeginCallback)
-      .onChange(panDownGestureOnChangeCallback)
-      .onFinalize(panDownGestureOnFinalizeCallback);
-
-    const panUp = Gesture.Pan()
-      .onBegin(panUpGestureOnBeginCallback)
-      .onChange(panUpGestureOnChangeCallback)
-      .onFinalize(panUpGestureOnFinalizeCallback);
-
-    const nativePanDown = Gesture.Pan()
-      .onBegin(panDownGestureOnBeginCallback)
-      .onChange(panDownGestureOnChangeCallback)
-      .onFinalize(panDownGestureOnFinalizeCallback)
-      .enabled(isScrollViewOnStart);
-
-    const nativePanUp = Gesture.Pan()
-      .onBegin(panUpGestureOnBeginCallback)
-      .onChange(panUpGestureOnChangeCallback)
-      .onFinalize(panUpGestureOnFinalizeCallback)
-      .enabled(isScrollViewOnEnd);
-
-    const pan = Gesture.Simultaneous(panDown, panUp);
-    const native = Gesture.Native().blocksExternalGesture(panDown, panUp);
-    const panNative = Gesture.Simultaneous(native, nativePanDown, nativePanUp);
-
-    const bottomSheetAnimatedStyles = useAnimatedStyle(() => {
-      'worklet';
-
-      return {
-        paddingBottom: isKeyboardOpenedSharedValue.value ? 0 : insets.bottom,
-        transform: [
-          {
-            translateY:
-              bottomSheetTranslateYSharedValue.value -
-              keyboardHeightSharedValue.value,
-          },
-        ],
-      };
+    backdropOpacitySharedValue.value = withSpring(backdropOpacity, {
+      duration: animationDuration,
     });
+    bottomSheetTranslateYSharedValue.value = withSpring(
+      bottomSheetOpenedTranslateY,
+      { duration: animationDuration }
+    );
+  }, [
+    isOpenSharedValue,
+    setBottomSheetHeight,
+    snapPointsCollapsed,
+    backdropOpacitySharedValue,
+    backdropOpacity,
+    animationDuration,
+    bottomSheetTranslateYSharedValue,
+  ]);
 
-    const containerAnimatedStyles = useAnimatedStyle(() => {
-      'worklet';
+  const close = useCallback(() => {
+    'worklet';
 
-      return {
-        pointerEvents: isOpenSharedValue.value ? 'auto' : 'none',
-      };
-    }, [isOpenSharedValue]);
+    dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
 
-    return (
-      <GestureDetector gesture={pan}>
+    isOpenSharedValue.value = false;
+    isExpandedSharedValue.value = false;
+
+    backdropOpacitySharedValue.value = withSpring(0, {
+      duration: animationDuration,
+    });
+    bottomSheetTranslateYSharedValue.value = withSpring(
+      bottomSheetHeightSharedValue.value,
+      { duration: animationDuration },
+      () => {
+        props.onClose && scheduleOnRN(props.onClose);
+      }
+    );
+  }, [
+    isOpenSharedValue,
+    isExpandedSharedValue,
+    backdropOpacitySharedValue,
+    bottomSheetTranslateYSharedValue,
+    bottomSheetHeightSharedValue.value,
+    dismissKeyboardOnClose,
+    animationDuration,
+    props.onClose,
+  ]);
+
+  const collapse = useCallback(() => {
+    'worklet';
+
+    setBottomSheetHeightAnimated(snapPointsCollapsed);
+
+    bottomSheetTranslateYSharedValue.value = withSpring(
+      bottomSheetOpenedTranslateY,
+      { duration: animationDuration }
+    );
+    isExpandedSharedValue.value = false;
+  }, [
+    animationDuration,
+    bottomSheetTranslateYSharedValue,
+    isExpandedSharedValue,
+    setBottomSheetHeightAnimated,
+    snapPointsCollapsed,
+  ]);
+
+  const expand = useCallback(() => {
+    'worklet';
+
+    setBottomSheetHeightAnimated(snapPointsExpanded);
+
+    bottomSheetTranslateYSharedValue.value = withSpring(
+      bottomSheetOpenedTranslateY,
+      { duration: animationDuration }
+    );
+    isExpandedSharedValue.value = true;
+  }, [
+    animationDuration,
+    bottomSheetTranslateYSharedValue,
+    isExpandedSharedValue,
+    setBottomSheetHeightAnimated,
+    snapPointsExpanded,
+  ]);
+
+  useEffect(() => {
+    props.isOpen ? scheduleOnUI(open) : scheduleOnUI(close);
+  }, [props.isOpen, open, close]);
+
+  useKeyboardHandler(
+    {
+      onStart: () => {
+        'worklet';
+
+        if (!isKeyboardOpenedSharedValue.value) {
+          isKeyboardOpeningSharedValue.value = true;
+          isKeyboardClosingSharedValue.value = false;
+          isKeyboardClosedSharedValue.value = false;
+        } else {
+          isKeyboardOpeningSharedValue.value = false;
+          isKeyboardClosingSharedValue.value = true;
+          isKeyboardOpenedSharedValue.value = false;
+        }
+      },
+      onMove: (event) => {
+        'worklet';
+
+        keyboardHeightSharedValue.value = event.height;
+
+        const expectedBottomSheetHeight = isExpandedSharedValue.value
+          ? snapPointsExpanded
+          : snapPointsCollapsed;
+
+        setBottomSheetHeight(expectedBottomSheetHeight);
+      },
+      onEnd: () => {
+        'worklet';
+
+        if (isKeyboardOpeningSharedValue.value) {
+          isKeyboardOpenedSharedValue.value = true;
+          isKeyboardOpeningSharedValue.value = false;
+        }
+
+        if (isKeyboardClosingSharedValue.value) {
+          isKeyboardClosedSharedValue.value = true;
+          isKeyboardClosingSharedValue.value = false;
+        }
+      },
+    },
+    []
+  );
+
+  const panDownGestureOnBeginCallback: NonNullable<
+    Parameters<ReturnType<typeof Gesture.Pan>['onBegin']>[0]
+  > = () => {
+    'worklet';
+  };
+
+  const panDownGestureOnChangeCallback: NonNullable<
+    Parameters<ReturnType<typeof Gesture.Pan>['onChange']>[0]
+  > = (event) => {
+    'worklet';
+
+    if (event.translationY < 0) return;
+
+    bottomSheetTranslateYSharedValue.value = withSpring(
+      bottomSheetOpenedTranslateY + event.translationY,
+      {
+        duration: animationDuration,
+      }
+    );
+  };
+
+  const panDownGestureOnFinalizeCallback: NonNullable<
+    Parameters<ReturnType<typeof Gesture.Pan>['onFinalize']>[0]
+  > = (event) => {
+    'worklet';
+
+    if (event.translationY < 0) return;
+
+    if (event.translationY < panSnapPoints) {
+      setBottomSheetHeightAnimated(
+        isExpandedSharedValue.value ? snapPointsExpanded : snapPointsCollapsed
+      );
+
+      bottomSheetTranslateYSharedValue.value = withSpring(
+        bottomSheetOpenedTranslateY,
+        { duration: animationDuration }
+      );
+    }
+
+    if (event.translationY >= snapPointsCollapsed / 2 + panSnapPoints) {
+      close();
+
+      return;
+    }
+
+    if (event.translationY >= panSnapPoints && !isExpandedSharedValue.value)
+      close();
+
+    if (event.translationY >= panSnapPoints && isExpandedSharedValue.value)
+      collapse();
+  };
+
+  const panUpGestureOnBeginCallback: NonNullable<
+    Parameters<ReturnType<typeof Gesture.Pan>['onBegin']>[0]
+  > = () => {
+    'worklet';
+  };
+
+  const panUpGestureOnChangeCallback: NonNullable<
+    Parameters<ReturnType<typeof Gesture.Pan>['onChange']>[0]
+  > = (event) => {
+    'worklet';
+
+    if (event.translationY > 0 || fullscreen) return;
+
+    if (!expandable) {
+      setBottomSheetHeightAnimated(
+        snapPointsCollapsed + Math.abs(event.translationY / 5)
+      );
+    }
+
+    if (expandable && !isExpandedSharedValue.value) {
+      setBottomSheetHeightAnimated(
+        snapPointsCollapsed + Math.abs(event.translationY)
+      );
+    }
+  };
+
+  const panUpGestureOnFinalizeCallback: NonNullable<
+    Parameters<ReturnType<typeof Gesture.Pan>['onFinalize']>[0]
+  > = (event) => {
+    'worklet';
+
+    if (event.translationY > 0 || isExpandedSharedValue.value || fullscreen)
+      return;
+
+    if (event.translationY > -panSnapPoints) collapse();
+
+    if (event.translationY <= -panSnapPoints && !expandable) collapse();
+
+    if (event.translationY <= -panSnapPoints && expandable) expand();
+  };
+
+  const panDown = Gesture.Pan()
+    .onBegin(panDownGestureOnBeginCallback)
+    .onChange(panDownGestureOnChangeCallback)
+    .onFinalize(panDownGestureOnFinalizeCallback);
+
+  const panUp = Gesture.Pan()
+    .onBegin(panUpGestureOnBeginCallback)
+    .onChange(panUpGestureOnChangeCallback)
+    .onFinalize(panUpGestureOnFinalizeCallback);
+
+  const nativePanDown = Gesture.Pan()
+    .onBegin(panDownGestureOnBeginCallback)
+    .onChange(panDownGestureOnChangeCallback)
+    .onFinalize(panDownGestureOnFinalizeCallback)
+    .enabled(captureGestureOnScrollStart && isScrollViewOnStart);
+
+  const nativePanUp = Gesture.Pan()
+    .onBegin(panUpGestureOnBeginCallback)
+    .onChange(panUpGestureOnChangeCallback)
+    .onFinalize(panUpGestureOnFinalizeCallback)
+    .enabled(captureGestureOnScrollEnd && isScrollViewOnEnd);
+
+  const pan = Gesture.Simultaneous(panDown, panUp);
+  const native = Gesture.Native().blocksExternalGesture(panDown, panUp);
+  const panNative = Gesture.Simultaneous(native, nativePanDown, nativePanUp);
+
+  const bottomSheetAnimatedStyles = useAnimatedStyle(() => {
+    'worklet';
+
+    return {
+      paddingBottom: isKeyboardOpenedSharedValue.value ? 0 : insets.bottom,
+      transform: [
+        {
+          translateY:
+            bottomSheetTranslateYSharedValue.value -
+            keyboardHeightSharedValue.value,
+        },
+      ],
+    };
+  });
+
+  const containerAnimatedStyles = useAnimatedStyle(() => {
+    'worklet';
+
+    return {
+      pointerEvents: isOpenSharedValue.value ? 'auto' : 'none',
+    };
+  }, [isOpenSharedValue]);
+
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        testID="bottomsheet-container"
+        style={[
+          {
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT - insets.top,
+            position: 'absolute',
+            top: insets.top,
+          },
+          props.style,
+          containerAnimatedStyles,
+        ]}
+      >
         <Animated.View
-          testID="bottomsheet-container"
+          testID="bottomsheet-backdrop"
+          style={{
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT,
+            transform: [
+              {
+                translateY: -insets.top,
+              },
+            ],
+            backgroundColor: backdropColor,
+            opacity: backdropOpacitySharedValue,
+          }}
+        >
+          <Pressable
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+            onPress={() => {
+              if (closeOnBackdropTap) close();
+            }}
+          />
+        </Animated.View>
+
+        <Animated.View
+          testID="bottomsheet"
           style={[
             {
+              height: bottomSheetHeightSharedValue,
               width: SCREEN_WIDTH,
-              height: SCREEN_HEIGHT - insets.top,
               position: 'absolute',
-              top: insets.top,
+              bottom: 0,
+              borderTopLeftRadius: borderRadius,
+              borderTopRightRadius: borderRadius,
+              boxShadow: `0 3px 7px 0 rgba(0, 0, 0, 0.5)`,
+              backgroundColor: backgroundColor,
             },
-            props.style,
-            containerAnimatedStyles,
+            bottomSheetAnimatedStyles,
           ]}
         >
-          <Animated.View
-            testID="bottomsheet-backdrop"
-            style={{
-              width: SCREEN_WIDTH,
-              height: SCREEN_HEIGHT,
-              transform: [
-                {
-                  translateY: -insets.top,
-                },
-              ],
-              backgroundColor: backdropColor,
-              opacity: backdropOpacitySharedValue,
-            }}
-          >
-            <Pressable
+          {!hideHandle ? (
+            <View
+              testID="bottomsheet-handle-container"
               style={{
-                width: '100%',
-                height: '100%',
+                paddingTop: 16,
+                paddingBottom: 16,
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
               }}
-              onPress={() => {
-                if (closeOnBackdropTap) close();
-              }}
-            />
-          </Animated.View>
-
-          <Animated.View
-            testID="bottomsheet"
-            style={[
-              {
-                height: bottomSheetHeightSharedValue,
-                width: SCREEN_WIDTH,
-                position: 'absolute',
-                bottom: 0,
-                borderTopLeftRadius: borderRadius,
-                borderTopRightRadius: borderRadius,
-                boxShadow: `0 3px 7px 0 rgba(0, 0, 0, 0.5)`,
-                backgroundColor: backgroundColor,
-              },
-              bottomSheetAnimatedStyles,
-            ]}
-          >
-            {!hideHandle ? (
+            >
               <View
-                testID="bottomsheet-handle-container"
+                testID="bottomsheet-handle"
                 style={{
-                  paddingTop: 16,
-                  paddingBottom: 16,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'center',
+                  borderRadius: 2,
+                  height: 4,
+                  width: 32,
+                  backgroundColor: handleColor,
                 }}
-              >
-                <View
-                  testID="bottomsheet-handle"
-                  style={{
-                    borderRadius: 2,
-                    height: 4,
-                    width: 32,
-                    backgroundColor: handleColor,
-                  }}
-                />
-              </View>
-            ) : (
-              <></>
-            )}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
 
-            <GestureDetector gesture={panNative}>
-              <ScrollView
-                {...props.scrollViewContentContainerProps}
-                testID="bottomsheet-content"
-                onLayout={(event) => {
-                  scrollViewLayoutSizeSharedValue.value =
-                    event.nativeEvent.layout.height;
+          <GestureDetector gesture={panNative}>
+            <ScrollView
+              {...props.scrollViewContentContainerProps}
+              testID="bottomsheet-content"
+              onLayout={(event) => {
+                scrollViewLayoutSizeSharedValue.value =
+                  event.nativeEvent.layout.height;
 
-                  props.scrollViewContentContainerProps?.onLayout?.(event);
-                }}
-                onContentSizeChange={(width, height) => {
-                  if (height < scrollViewLayoutSizeSharedValue.value) {
-                    setIsScrollViewOnStart(true);
-                    setIsScrollViewOnEnd(true);
-                  }
+                props.scrollViewContentContainerProps?.onLayout?.(event);
+              }}
+              onContentSizeChange={(width, height) => {
+                if (height < scrollViewLayoutSizeSharedValue.value) {
+                  setIsScrollViewOnStart(true);
+                  setIsScrollViewOnEnd(true);
+                }
 
-                  props.scrollViewContentContainerProps?.onContentSizeChange?.(
-                    width,
-                    height
-                  );
-                }}
-                onScroll={(event) => {
-                  props.scrollViewContentContainerProps?.onScroll?.(event);
+                props.scrollViewContentContainerProps?.onContentSizeChange?.(
+                  width,
+                  height
+                );
+              }}
+              onScroll={(event) => {
+                props.scrollViewContentContainerProps?.onScroll?.(event);
 
-                  const layoutSize = event.nativeEvent.layoutMeasurement.height;
-                  const contentOffset = event.nativeEvent.contentOffset.y;
-                  const contentSize = event.nativeEvent.contentSize.height;
+                const layoutSize = event.nativeEvent.layoutMeasurement.height;
+                const contentOffset = event.nativeEvent.contentOffset.y;
+                const contentSize = event.nativeEvent.contentSize.height;
 
-                  scrollViewContentOffsetSharedValue.value = contentOffset;
-                  scrollViewLayoutSizeSharedValue.value = layoutSize;
-                  scrollViewContentSizeSharedValue.value = contentSize;
+                scrollViewContentOffsetSharedValue.value = contentOffset;
+                scrollViewLayoutSizeSharedValue.value = layoutSize;
+                scrollViewContentSizeSharedValue.value = contentSize;
 
-                  setIsScrollViewOnStart(contentOffset <= 0);
-                  setIsScrollViewOnEnd(
-                    Math.round(layoutSize + contentOffset) ===
-                      Math.round(contentSize)
-                  );
-                }}
-                scrollEventThrottle={16}
-              >
-                {props.children}
-              </ScrollView>
-            </GestureDetector>
-          </Animated.View>
+                setIsScrollViewOnStart(contentOffset <= 0);
+                setIsScrollViewOnEnd(
+                  Math.round(layoutSize + contentOffset) ===
+                    Math.round(contentSize)
+                );
+              }}
+              scrollEventThrottle={16}
+            >
+              {props.children}
+            </ScrollView>
+          </GestureDetector>
         </Animated.View>
-      </GestureDetector>
-    );
-  }
-);
+      </Animated.View>
+    </GestureDetector>
+  );
+};

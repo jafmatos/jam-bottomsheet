@@ -1,11 +1,11 @@
+import { BottomSheetContentOptions } from "@e2e/utils/BottomSheetContentOptions";
 import { BottomSheetPropsBuilder } from "@e2e/utils/BottomSheetPropsBuilder";
-import { BottomSheetContentOptions } from "@e2e/utils/ContentOptions";
-import { makeDeepLinkWithBottomSheetProps } from "@e2e/utils/makeDeepLinkWithBottomSheetProps";
+import { makeDeepLinkFromBottomSheetProps } from "@e2e/utils/makeDeepLinkFromBottomSheetProps";
 
 const props = BottomSheetPropsBuilder.one().withFullscreen(true).build();
 
 export default {
-  url: makeDeepLinkWithBottomSheetProps({
+  url: makeDeepLinkFromBottomSheetProps({
     ...props,
     content: BottomSheetContentOptions.Form,
   }),

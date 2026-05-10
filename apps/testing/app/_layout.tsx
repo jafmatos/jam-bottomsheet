@@ -2,7 +2,7 @@ import { requireOptionalNativeModule } from "expo";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
-import { BottomSheetProvider } from "react-native-bottomsheet";
+import { BottomSheetProvider } from "jam-bottomsheet";
 
 const DevMenuPreferences = requireOptionalNativeModule("DevMenuPreferences");
 

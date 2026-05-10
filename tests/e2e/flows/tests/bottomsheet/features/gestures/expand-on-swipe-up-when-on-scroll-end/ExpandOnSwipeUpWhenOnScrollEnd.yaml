@@ -1,4 +1,4 @@
-appId: com.testing.jaf.matos
+appId: com.jaf.matos.testing
 tags: 
   - gestures
   - scroll
@@ -15,40 +15,43 @@ tags:
       id: "button_open-sheet"
     timeout: 10000
 
-- assertScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-400h-long-text.png
-    cropOn:
-      id: "bottomsheet"
-    thresholdPercentage: 98
-
 - tapOn: 
     id: "button_open-sheet"
+
+- waitForAnimationToEnd
 
 - repeat:
     times: 10
     while: 
       notVisible: 
         id: "last-text-node"
-      commands:
-        - swipe:
-            start: 90%, 90%
-            end: 90%, 65%
-            duration: 200
+    commands:
+      - swipe:
+          start: 90%, 90%
+          end: 90%, 65%
+          duration: 200
 
 - extendedWaitUntil:
     visible:
       id: "last-text-node"
     timeout: 10000
 
+- assertScreenshot:
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-400h-with-long-text-end.png
+    cropOn:
+      id: "bottomsheet"
+    thresholdPercentage: 98
+
 - swipe:
-    start: 90%, 90%
-    end: 90%, 70%
+    from: 
+      id: "bottomsheet"
+    direction: UP
     duration: 200
 
 - waitForAnimationToEnd
 
 - assertScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-long-text.png
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-long-text-end.png
     cropOn:
       id: "bottomsheet"
     thresholdPercentage: 98
