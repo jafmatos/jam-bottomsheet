@@ -1,4 +1,6 @@
 appId: com.jaf.matos.testing
+tags:
+  - gestures
 ---
 - pressKey: Home
 - clearState

@@ -3,6 +3,7 @@ import { Button, Text, TextInput, View } from "react-native";
 export function FormContent() {
   return (
     <View
+      testID="form-content"
       style={{
         padding: 16,
         display: "flex",

@@ -1,4 +1,4 @@
-import { type BottomSheetProps } from "react-native-bottomsheet";
+import { type BottomSheetProps } from "jam-bottomsheet";
 
 export class BottomSheetPropsBuilder {
   private props: BottomSheetProps = {};
@@ -93,14 +93,26 @@ export class BottomSheetPropsBuilder {
     return this;
   }
 
-  withScrollViewContentContainerStyle(value: BottomSheetProps["scrollViewContentContainerStyle"]) {
-    this.props.scrollViewContentContainerStyle = value;
+  withScrollViewContentContainerProps(value: BottomSheetProps["scrollViewContentContainerProps"]) {
+    this.props.scrollViewContentContainerProps = value;
 
     return this;
   }
 
   withDismissKeyboardOnClose(value: BottomSheetProps["dismissKeyboardOnClose"]) {
     this.props.dismissKeyboardOnClose = value;
+
+    return this;
+  }
+
+  withCaptureGestureOnScrollStart(value: BottomSheetProps["captureGestureOnScrollStart"]) {
+    this.props.captureGestureOnScrollStart = value;
+
+    return this;
+  }
+
+  withCaptureGestureOnScrollEnd(value: BottomSheetProps["captureGestureOnScrollEnd"]) {
+    this.props.captureGestureOnScrollEnd = value;
 
     return this;
   }

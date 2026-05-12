@@ -1,0 +1,35 @@
+appId: com.jaf.matos.testing
+tags:
+  - baseline
+---
+- pressKey: Home
+- clearState
+
+- runScript: ./setup.js
+
+- openLink: ${output.url}
+
+- extendedWaitUntil:
+    visible:
+      id: "button_open-sheet"
+    timeout: 10000
+
+- tapOn:
+    id: "button_open-sheet"
+
+- waitForAnimationToEnd
+
+- takeScreenshot:
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-with-form
+    cropOn:
+      id: "bottomsheet"
+
+- tapOn:
+    id: "form-input_description"
+
+- waitForAnimationToEnd
+
+- takeScreenshot:
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-fullscreen-with-form-and-keyboard
+    cropOn:
+      id: "bottomsheet"

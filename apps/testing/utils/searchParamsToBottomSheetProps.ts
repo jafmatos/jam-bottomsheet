@@ -1,4 +1,4 @@
-import { BottomSheetProps } from "react-native-bottomsheet";
+import { BottomSheetProps } from "jam-bottomsheet";
 
 export type BottomSheetPropsAsString = {
   [Key in keyof BottomSheetProps]: string;
@@ -6,7 +6,6 @@ export type BottomSheetPropsAsString = {
 
 export const searchParamsToBottomSheetProps = (params: BottomSheetPropsAsString): BottomSheetProps => {
   return {
-    testIdPrefix: params.testIdPrefix ? params.testIdPrefix : undefined,
     expandable: params.expandable ? params.expandable === "true" : undefined,
     fullscreen: params.fullscreen ? params.fullscreen === "true" : undefined,
     snapPointsCollapsed: params.snapPointsCollapsed ? Number(params.snapPointsCollapsed) : undefined,
@@ -16,7 +15,7 @@ export const searchParamsToBottomSheetProps = (params: BottomSheetPropsAsString)
     backgroundColor: params.backgroundColor ? (params.backgroundColor as string) : undefined,
     borderRadius: params.borderRadius ? Number(params.borderRadius) : undefined,
     handleColor: params.handleColor ? (params.handleColor as string) : undefined,
-    showHandle: params.showHandle ? params.showHandle === "true" : undefined,
+    hideHandle: params.hideHandle ? params.hideHandle === "true" : undefined,
     animationDuration: params.animationDuration ? Number(params.animationDuration) : undefined,
     closeOnBackdropTap: params.closeOnBackdropTap ? params.closeOnBackdropTap === "true" : undefined,
     panSnapPoints: params.panSnapPoints ? Number(params.panSnapPoints) : undefined,

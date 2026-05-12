@@ -1,6 +1,6 @@
-import { useMemo, useRef } from "react";
-import { Button, Keyboard, Text, View } from "react-native";
-import { type BottomSheetRef, BottomSheet, BottomSheetProps } from "react-native-bottomsheet";
+import { useMemo, useState } from "react";
+import { Button, Text, View } from "react-native";
+import { BottomSheet, BottomSheetProps } from "jam-bottomsheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGlobalSearchParams } from "expo-router";
 import EmptyContent from "@/components/contents/EmptyContent";
@@ -14,7 +14,7 @@ enum ContentOptions {
   TextShort = "text:short",
   TextLong = "text:long",
   Form = "form",
-	Gallery = "gallery",
+  Gallery = "gallery",
 }
 
 const contentMap = new Map<ContentOptions, () => React.ReactElement>([
@@ -27,9 +27,9 @@ const contentMap = new Map<ContentOptions, () => React.ReactElement>([
 
 export default function TestScreen() {
   const insets = useSafeAreaInsets();
-  const bottomSheetRef = useRef<BottomSheetRef>(null);
-  const openBottomSheet = () => bottomSheetRef.current?.open();
-  const closeBottomSheet = () => bottomSheetRef.current?.close();
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const openBottomSheet = () => setIsBottomSheetOpen(true);
+  const closeBottomSheet = () => setIsBottomSheetOpen(false);
   const params = useGlobalSearchParams<{ props?: string }>();
 
   const { content: contentOption, ...bottomSheetProps }: BottomSheetProps & { content: ContentOptions } = useMemo(() => {
@@ -43,21 +43,6 @@ export default function TestScreen() {
 
   const Content = useMemo(() => {
     return contentMap.get(contentOption) || EmptyContent;
-  }, [contentOption]);
-
-  const contentElement = useMemo(() => {
-    switch (contentOption) {
-      case ContentOptions.Empty:
-        return <EmptyContent />;
-      case ContentOptions.TextShort:
-        return <ShortTextContent />;
-      case ContentOptions.TextLong:
-        return <LongTextContent />;
-      case ContentOptions.Form:
-        return <FormContent />;
-      default:
-        return <EmptyContent />;
-    }
   }, [contentOption]);
 
   return (
@@ -88,7 +73,7 @@ export default function TestScreen() {
         <Button testID="button_close-sheet" title="Close sheet" onPress={closeBottomSheet} />
       </View>
 
-      <BottomSheet ref={bottomSheetRef} {...bottomSheetProps}>
+      <BottomSheet isOpen={isBottomSheetOpen} onClose={closeBottomSheet} {...bottomSheetProps}>
         <Content />
       </BottomSheet>
     </View>

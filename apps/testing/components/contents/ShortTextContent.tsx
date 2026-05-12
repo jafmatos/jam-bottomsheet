@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 
 export default function ShortTextContent() {
   return (
-    <View style={{ padding: 16, gap: 16 }}>
+    <View testID="short-text-content" style={{ padding: 16, gap: 16 }}>
       <View style={{ gap: 8 }}>
         <Text style={{ fontSize: 22, fontWeight: "700" }}>Jesus the Way to the Father</Text>
 

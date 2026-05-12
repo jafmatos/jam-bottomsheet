@@ -19,7 +19,6 @@ Designed for smooth gestures, keyboard awareness, fullscreen support, expandable
 - Keyboard-aware animations
 - Nested ScrollView support
 - Backdrop support
-- Imperative API (`open()` and `close()`)
 - Safe area support
 - Highly customizable styling
 - Built with Reanimated worklets for performance
@@ -76,7 +75,7 @@ module.exports = {
 # Basic Usage
 
 ```tsx
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Button, Text, View } from 'react-native';
 
 import {
@@ -85,16 +84,16 @@ import {
 } from 'jam-bottomsheet';
 
 export default function App() {
-  const bottomSheetRef = useRef<BottomSheetRef>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <View style={{ flex: 1 }}>
       <Button
         title="Open Bottom Sheet"
-        onPress={() => bottomSheetRef.current?.open()}
+        onPress={() => setIsOpen(true)}
       />
 
-      <BottomSheet ref={bottomSheetRef}>
+      <BottomSheet isOpen={isOpen} onCLose={() => setIsOpen(false)}>
         <Text>Hello from the bottom sheet</Text>
       </BottomSheet>
     </View>
@@ -108,7 +107,8 @@ export default function App() {
 
 ```tsx
 <BottomSheet
-  ref={bottomSheetRef}
+  isOpen={isOpen} 
+	onClose={() => setIsOpen(false)}
   expandable
   snapPointsCollapsed={300}
   snapPointsExpanded={700}
@@ -125,7 +125,8 @@ Swipe up to expand and swipe down to collapse.
 
 ```tsx
 <BottomSheet
-  ref={bottomSheetRef}
+  isOpen={isOpen} 
+	onCLose={() => setIsOpen(false)}
   fullscreen
 >
   {/* content */}
@@ -138,6 +139,7 @@ Swipe up to expand and swipe down to collapse.
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
+| `isOpen` | `boolean` | `false` | Determines if the sheet is open |
 | `expandable` | `boolean` | `false` | Enables expand/collapse behavior |
 | `fullscreen` | `boolean` | `false` | Makes the sheet fullscreen |
 | `snapPointsCollapsed` | `number` | `400` | Height when collapsed |
@@ -157,32 +159,10 @@ Swipe up to expand and swipe down to collapse.
 
 ---
 
-# Ref Methods
-
-## open()
-
-Opens the bottom sheet.
-
-```tsx
-bottomSheetRef.current?.open();
-```
-
----
-
-## close()
-
-Closes the bottom sheet.
-
-```tsx
-bottomSheetRef.current?.close();
-```
-
----
-
 # Example
 
 ```tsx
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Text,
@@ -191,21 +171,21 @@ import {
 
 import {
   BottomSheet,
-  BottomSheetRef,
 } from 'jam-bottomsheet';
 
 export default function App() {
-  const ref = useRef<BottomSheetRef>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <View style={{ flex: 1 }}>
       <Button
         title="Open"
-        onPress={() => ref.current?.open()}
+        onPress={() => setIsOpen(true)}
       />
 
       <BottomSheet
-        ref={ref}
+        isOpen={isOpen}
+				onClose={() => setIsOpen(false)}
         expandable
         snapPointsCollapsed={300}
         snapPointsExpanded={700}
