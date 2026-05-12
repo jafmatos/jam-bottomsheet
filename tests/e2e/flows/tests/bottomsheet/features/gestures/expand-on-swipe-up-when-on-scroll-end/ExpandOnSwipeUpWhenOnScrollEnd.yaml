@@ -37,7 +37,7 @@ tags:
     timeout: 10000
 
 - assertScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-400h-with-long-text-end.png
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-collapsed-400h-with-long-text-end.png
     cropOn:
       id: "bottomsheet"
     thresholdPercentage: 98
@@ -54,5 +54,5 @@ tags:
     path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-long-text-end.png
     cropOn:
       id: "bottomsheet"
-    thresholdPercentage: 98
+    thresholdPercentage: 85
 

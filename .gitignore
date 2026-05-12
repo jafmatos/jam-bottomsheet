@@ -1,8 +1,10 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
+.apk
 tests/e2e/flows/**/*.js
 tests/e2e/screenshots/baselines
 test-artifacts
+
 
 # dependencies
 node_modules/

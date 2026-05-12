@@ -36,6 +36,13 @@ tags:
     cropOn:
       id: "bottomsheet"
 
+- swipe:
+    start: 90%, 10%
+    end: 90%, 25%
+    duration: 200
+
+- waitForAnimationToEnd
+
 - repeat:
     times: 10
     while: 
@@ -48,18 +55,18 @@ tags:
           duration: 200
 
 - takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-long-text-end
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-collapsed-400h-with-long-text-end
     cropOn:
       id: "bottomsheet"
 
 - swipe:
-    start: 90%, 10%
-    end: 90%, 25%
-    duration: 200
+    start: 90%, 50%
+    end: 90%, 35%
+    duration: 400
 
 - waitForAnimationToEnd
 
 - takeScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-400h-with-long-text-end
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-long-text-end
     cropOn:
       id: "bottomsheet"
