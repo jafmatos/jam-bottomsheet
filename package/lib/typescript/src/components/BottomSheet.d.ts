@@ -23,6 +23,10 @@ export interface BottomSheetProps extends React.ComponentProps<typeof Animated.V
     captureGestureOnScrollEnd?: boolean;
     scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
 }
+export interface BottomSheetRef {
+    open: () => void;
+    close: () => void;
+}
 export declare const BOTTOMSHEET_DEFAULT_PROPS: Pick<Required<BottomSheetProps>, 'expandable' | 'fullscreen' | 'snapPointsCollapsed' | 'backdropOpacity' | 'backdropColor' | 'backgroundColor' | 'borderRadius' | 'handleColor' | 'hideHandle' | 'panSnapPoints' | 'animationDuration' | 'closeOnBackdropTap' | 'captureGestureOnScrollStart' | 'captureGestureOnScrollEnd' | 'dismissKeyboardOnClose'>;
-export declare const BottomSheet: ({ expandable, fullscreen, snapPointsCollapsed, backdropOpacity, backdropColor, backgroundColor, borderRadius, handleColor, hideHandle, panSnapPoints, animationDuration, closeOnBackdropTap, dismissKeyboardOnClose, captureGestureOnScrollStart, captureGestureOnScrollEnd, ...props }: BottomSheetProps) => import("react/jsx-runtime").JSX.Element;
+export declare const BottomSheet: React.ForwardRefExoticComponent<Omit<BottomSheetProps, "ref"> & React.RefAttributes<BottomSheetRef>>;
 //# sourceMappingURL=BottomSheet.d.ts.map

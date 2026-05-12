@@ -1,6 +1,6 @@
 {
 	"name": "jam-bottomsheet",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "A highly interactive bottomsheet component for React Native environments",
 	"main": "./lib/module/index.js",
 	"types": "./lib/typescript/src/index.d.ts",
@@ -32,7 +32,7 @@
 		"!**/.*"
 	],
 	"scripts": {
-		"example": "yarn workspace react-native-bottomsheet-example",
+		"example": "yarn workspace jam-bottomsheet-example",
 		"clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
 		"prepare": "bob build",
 		"typecheck": "tsc",
@@ -46,14 +46,14 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/jafmatos/react-native-bottomsheet.git"
+		"url": "git+https://github.com/jafmatos/jam-bottomsheet.git"
 	},
 	"author": "José Anselmo Ferreira Matos <anselmojose297@gmail.com> (https://github.com/jafmatos)",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/jafmatos/react-native-bottomsheet/issues"
+		"url": "https://github.com/jafmatos/jam-bottomsheet/issues"
 	},
-	"homepage": "https://github.com/jafmatos/react-native-bottomsheet#readme",
+	"homepage": "https://github.com/jafmatos/jam-bottomsheet#readme",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
 	},

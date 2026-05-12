@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button, Text, View } from "react-native";
-import { BottomSheet, BottomSheetProps } from "jam-bottomsheet";
+import { BottomSheet, BottomSheetProps, type BottomSheetRef } from "jam-bottomsheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGlobalSearchParams } from "expo-router";
 import EmptyContent from "@/components/contents/EmptyContent";
@@ -27,23 +27,31 @@ const contentMap = new Map<ContentOptions, () => React.ReactElement>([
 
 export default function TestScreen() {
   const insets = useSafeAreaInsets();
+  const bottomSheetRef = useRef<BottomSheetRef>(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const openBottomSheet = () => setIsBottomSheetOpen(true);
-  const closeBottomSheet = () => setIsBottomSheetOpen(false);
+  const openBottomSheetWithState = () => setIsBottomSheetOpen(true);
+  const closeBottomSheetWithState = () => setIsBottomSheetOpen(false);
+  const openBottomSheetWithRef = () => bottomSheetRef.current?.open();
+  const closeBottomSheetWithRef = () => bottomSheetRef.current?.close();
   const params = useGlobalSearchParams<{ props?: string }>();
 
-  const { content: contentOption, ...bottomSheetProps }: BottomSheetProps & { content: ContentOptions } = useMemo(() => {
+  const {
+    content = ContentOptions.Form,
+    useImperative = true,
+    ...bottomSheetProps
+  }: BottomSheetProps & { content?: ContentOptions; useImperative?: boolean } = useMemo(() => {
     if (!params.props) return {};
 
     const decodedProps = decodeURIComponent(params.props);
     const jsonProps = JSON.parse(decodedProps);
+    jsonProps.useImperative = true;
 
     return jsonProps;
   }, [params]);
 
   const Content = useMemo(() => {
-    return contentMap.get(contentOption) || EmptyContent;
-  }, [contentOption]);
+    return content ? contentMap.get(content) || EmptyContent : EmptyContent;
+  }, [content]);
 
   return (
     <View
@@ -69,11 +77,25 @@ export default function TestScreen() {
           Actions
         </Text>
 
-        <Button testID="button_open-sheet" title="Open sheet" onPress={openBottomSheet} />
-        <Button testID="button_close-sheet" title="Close sheet" onPress={closeBottomSheet} />
+        <Button
+          testID="button_open-sheet"
+          title="Open sheet"
+          onPress={() => {
+            if (useImperative) openBottomSheetWithRef();
+            else openBottomSheetWithState();
+          }}
+        />
+        <Button
+          testID="button_close-sheet"
+          title="Close sheet"
+          onPress={() => {
+            if (useImperative) closeBottomSheetWithRef();
+            else closeBottomSheetWithState();
+          }}
+        />
       </View>
 
-      <BottomSheet isOpen={isBottomSheetOpen} onClose={closeBottomSheet} {...bottomSheetProps}>
+      <BottomSheet ref={bottomSheetRef} isOpen={isBottomSheetOpen} onClose={closeBottomSheetWithState} expandable {...bottomSheetProps}>
         <Content />
       </BottomSheet>
     </View>

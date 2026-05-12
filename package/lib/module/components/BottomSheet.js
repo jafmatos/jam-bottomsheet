@@ -1,7 +1,7 @@
 "use strict";
 
 /* eslint-disable react-native/no-inline-styles */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { Dimensions, Keyboard, Pressable, ScrollView, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,7 +29,7 @@ export const BOTTOMSHEET_DEFAULT_PROPS = {
   captureGestureOnScrollEnd: true,
   dismissKeyboardOnClose: true
 };
-export const BottomSheet = ({
+export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
   expandable = BOTTOMSHEET_DEFAULT_PROPS.expandable,
   fullscreen = BOTTOMSHEET_DEFAULT_PROPS.fullscreen,
   snapPointsCollapsed = BOTTOMSHEET_DEFAULT_PROPS.snapPointsCollapsed,
@@ -46,7 +46,7 @@ export const BottomSheet = ({
   captureGestureOnScrollStart = BOTTOMSHEET_DEFAULT_PROPS.captureGestureOnScrollStart,
   captureGestureOnScrollEnd = BOTTOMSHEET_DEFAULT_PROPS.captureGestureOnScrollEnd,
   ...props
-}) => {
+}, ref) {
   const insets = useSafeAreaInsets();
   const [isScrollViewOnStart, _setIsScrollViewOnStart] = useState(true);
   const [isScrollViewOnEnd, _setIsScrollViewOnEnd] = useState(true);
@@ -141,6 +141,12 @@ export const BottomSheet = ({
   useEffect(() => {
     props.isOpen ? scheduleOnUI(open) : scheduleOnUI(close);
   }, [props.isOpen, open, close]);
+  useImperativeHandle(ref, () => {
+    return {
+      open: () => scheduleOnUI(open),
+      close: () => scheduleOnUI(close)
+    };
+  }, [open, close]);
   useKeyboardHandler({
     onStart: () => {
       'worklet';
@@ -343,5 +349,5 @@ export const BottomSheet = ({
       })]
     })
   });
-};
+});
 //# sourceMappingURL=BottomSheet.js.map

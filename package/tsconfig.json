@@ -1,18 +1,9 @@
 {
-	"exclude": [
-		"__tests__"
-	],
 	"compilerOptions": {
 		"rootDir": ".",
 		"paths": {
 			"@/*": [
 				"./*"
-			],
-			"@/testing": [
-				"./__tests__/*"
-			],
-			"react-native-bottomsheet": [
-				"./src/index"
 			]
 		},
 		"allowUnreachableCode": false,

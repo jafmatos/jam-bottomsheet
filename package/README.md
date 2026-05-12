@@ -1,27 +1,36 @@
 # jam-bottomsheet
 
-A lightweight, highly customizable React Native bottom sheet built with:
+[![npm version](https://img.shields.io/npm/v/jam-bottomsheet?color=blue)](https://www.npmjs.com/package/jam-bottomsheet)
+[![npm downloads](https://img.shields.io/npm/dm/jam-bottomsheet?color=2e9f40)](https://www.npmjs.com/package/jam-bottomsheet)
+[![license](https://img.shields.io/npm/l/jam-bottomsheet?color=red)](https://github.com/jafmatos/jam-bottomsheet/blob/main/LICENSE)
 
-- react-native-reanimated
-- react-native-gesture-handler
-- react-native-keyboard-controller
-- react-native-worklets
+A lightweight and highly customizable React Native bottom sheet built with:
 
-Designed for smooth gestures, keyboard awareness, fullscreen support, expandable snap points, and nested scrolling.
+- `react-native-reanimated`
+- `react-native-gesture-handler`
+- `react-native-keyboard-controller`
+- `react-native-worklets`
+
+Designed for smooth gestures, keyboard-aware interactions, expandable snap points, fullscreen presentations, and seamless nested scrolling.
+
+<p align="center">
+  <img src="./static/demo.gif" width="300" />
+</p>
 
 ---
 
 # Features
 
-- Smooth gesture handling
-- Expandable bottom sheet
-- Fullscreen mode
-- Keyboard-aware animations
-- Nested ScrollView support
-- Backdrop support
-- Safe area support
-- Highly customizable styling
-- Built with Reanimated worklets for performance
+- Smooth UI-thread animations powered by Reanimated
+- Expandable and fullscreen modes
+- Keyboard-aware behavior and animations
+- Nested scrolling support with gesture conflict handling
+- Supports both controlled and imperative APIs
+- Built-in backdrop support
+- Built-in safe area handling
+- Highly customizable appearance and behavior
+- Optimized with Reanimated worklets
+- End-to-end tested with Maestro
 
 ---
 
@@ -39,11 +48,11 @@ npm install react-native-reanimated react-native-gesture-handler react-native-sa
 
 ---
 
-# Required Setup
+# Setup
 
-## React Native Gesture Handler
+## Provider Setup
 
-Make sure your app is wrapped with:
+Wrap your application with `BottomSheetProvider`:
 
 ```tsx
 import { BottomSheetProvider } from 'jam-bottomsheet';
@@ -80,7 +89,6 @@ import { Button, Text, View } from 'react-native';
 
 import {
   BottomSheet,
-  BottomSheetRef,
 } from 'jam-bottomsheet';
 
 export default function App() {
@@ -93,7 +101,52 @@ export default function App() {
         onPress={() => setIsOpen(true)}
       />
 
-      <BottomSheet isOpen={isOpen} onCLose={() => setIsOpen(false)}>
+      <BottomSheet isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <Text>Hello from the bottom sheet</Text>
+      </BottomSheet>
+    </View>
+  );
+}
+```
+
+---
+
+# Controlled vs Imperative API
+
+`jam-bottomsheet` supports both declarative and imperative usage patterns.
+
+Use the controlled API (`isOpen`) for state-driven interfaces and dynamic content.
+
+Use the imperative API (`open()` and `close()`) for maximum responsiveness and direct control over presentation.
+
+---
+
+# Usage with Imperative API
+
+```tsx
+import React, { useState } from 'react';
+import { Button, Text, View } from 'react-native';
+
+import {
+  BottomSheet,
+  type BottomSheetRef,
+} from 'jam-bottomsheet';
+
+export default function App() {
+  const bottomSheetRef = React.useRef<BottomSheetRef>(null);
+
+  const openBottomSheet = () => {
+	  bottomSheetRef.current?.open();
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Button
+        title="Open Bottom Sheet"
+        onPress={openBottomSheet}
+      />
+
+      <BottomSheet ref={bottomSheetRef}>
         <Text>Hello from the bottom sheet</Text>
       </BottomSheet>
     </View>
@@ -108,7 +161,7 @@ export default function App() {
 ```tsx
 <BottomSheet
   isOpen={isOpen} 
-	onClose={() => setIsOpen(false)}
+  onClose={() => setIsOpen(false)}  
   expandable
   snapPointsCollapsed={300}
   snapPointsExpanded={700}
@@ -126,7 +179,7 @@ Swipe up to expand and swipe down to collapse.
 ```tsx
 <BottomSheet
   isOpen={isOpen} 
-	onCLose={() => setIsOpen(false)}
+  onClose={() => setIsOpen(false)}
   fullscreen
 >
   {/* content */}
@@ -154,59 +207,20 @@ Swipe up to expand and swipe down to collapse.
 | `animationDuration` | `number` | `300` | Animation duration |
 | `closeOnBackdropTap` | `boolean` | `true` | Close when backdrop is tapped |
 | `dismissKeyboardOnClose` | `boolean` | `true` | Dismiss keyboard on close |
+| `captureGestureOnScrollStart` | `boolean` | `true` | Allows the sheet to capture downward gestures when the internal scroll view is at the top |
+| `captureGestureOnScrollEnd` | `boolean` | `true` | Allows the sheet to capture upward gestures when the internal scroll view is at the bottom |
 | `onClose` | `() => void` | `undefined` | Called after close animation |
 | `scrollViewContentContainerStyle` | `ViewStyle` | `undefined` | ScrollView content style |
 
 ---
 
-# Example
-
-```tsx
-import React, { useState } from 'react';
-import {
-  Button,
-  Text,
-  View,
-} from 'react-native';
-
-import {
-  BottomSheet,
-} from 'jam-bottomsheet';
-
-export default function App() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <View style={{ flex: 1 }}>
-      <Button
-        title="Open"
-        onPress={() => setIsOpen(true)}
-      />
-
-      <BottomSheet
-        isOpen={isOpen}
-				onClose={() => setIsOpen(false)}
-        expandable
-        snapPointsCollapsed={300}
-        snapPointsExpanded={700}
-        backgroundColor="#fff"
-      >
-        <Text>
-          Scrollable content here
-        </Text>
-      </BottomSheet>
-    </View>
-  );
-}
-```
-
----
-
 # Notes
 
+- The bottom sheet should generally be rendered outside safe area containers, as it already handles safe area boundaries internally
 - It is recommended to use portals such as `@gorhom/portal` to avoid visual inconsistencies caused by parent layouts, such as safe areas, clipping, or stacking issues
-- The bottom sheet internally uses a `ScrollView`
-- Keyboard animations are handled automatically
+- When using the imperative API with state-driven content, ensure the content is rendered before opening the sheet to avoid visual inconsistencies during the animation
+- Content is rendered inside an internal `ScrollView`
+- Keyboard appearance and dismissal animations are handled automatically
 - Gesture conflicts with nested scrolling are handled internally
 - Works well with forms and text inputs
 
