@@ -108,7 +108,7 @@ export default function App() {
 ```tsx
 <BottomSheet
   isOpen={isOpen} 
-	onCLose={() => setIsOpen(false)}
+	onClose={() => setIsOpen(false)}
   expandable
   snapPointsCollapsed={300}
   snapPointsExpanded={700}
