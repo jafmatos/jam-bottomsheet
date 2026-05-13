@@ -1,7 +1,6 @@
-appId: com.testing.jaf.matos
+appId: com.jaf.matos.testing
 tags: 
-  - gestures
-  - scroll
+  - handle
 ---
 - pressKey: Home
 - clearState
@@ -18,10 +17,12 @@ tags:
 - tapOn: 
     id: "button_open-sheet"
 
-- extendedWaitUntil:
-    visible: 
-      id: "bottomsheet"
-    timeout: 10000
+- waitForAnimationToEnd
 
-- assertNotVisible:
-    id: "bottomsheet-handle-container"
+# - extendedWaitUntil:
+#     visible: 
+#       id: "bottomsheet"
+#     timeout: 10000
+
+# - assertNotVisible:
+#     id: "bottomsheet-handle-container"

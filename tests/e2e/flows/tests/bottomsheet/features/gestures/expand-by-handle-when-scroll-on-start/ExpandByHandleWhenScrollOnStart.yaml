@@ -1,6 +1,7 @@
 appId: com.jaf.matos.testing
 tags:
   - gestures
+  - scroll
   - handle
 ---
 - pressKey: Home
@@ -29,7 +30,7 @@ tags:
     timeout: 10000
 
 - assertScreenshot:
-    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-collapsed-400h-empty.png
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-collapsed-400h-with-long-text.png
     cropOn:
       id: "bottomsheet"
     thresholdPercentage: 98
@@ -37,10 +38,13 @@ tags:
 - swipe:
     from:
       id: "bottomsheet-handle-container"
-    direction: DOWN
+    direction: UP
     duration: 100
 
 - waitForAnimationToEnd
 
-- assertNotVisible:
-    id: "bottomsheet"
+- assertScreenshot:
+    path: ${SCREENSHOTS_DIR}/baselines/bottomsheet-expanded-600h-with-long-text.png
+    cropOn:
+      id: "bottomsheet"
+    thresholdPercentage: 98
