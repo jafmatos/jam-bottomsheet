@@ -1,166 +1,167 @@
 {
-	"name": "jam-bottomsheet",
-	"version": "0.1.6",
-	"description": "A lightweight and highly customizable React Native bottom sheet",
-	"main": "./lib/module/index.js",
-	"types": "./lib/typescript/src/index.d.ts",
-	"exports": {
-		".": {
-			"source": "./src/index.tsx",
-			"types": "./lib/typescript/src/index.d.ts",
-			"default": "./lib/module/index.js"
-		},
-		"./package.json": "./package.json"
-	},
-	"files": [
-		"src",
-		"lib",
-		"android",
-		"ios",
-		"cpp",
-		"*.podspec",
-		"react-native.config.js",
-		"!ios/build",
-		"!android/build",
-		"!android/gradle",
-		"!android/gradlew",
-		"!android/gradlew.bat",
-		"!android/local.properties",
-		"!**__tests__",
-		"!**/__fixtures__",
-		"!**/__mocks__",
-		"!**/.*"
-	],
-	"scripts": {
-		"example": "yarn workspace jam-bottomsheet-example",
-		"clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-		"prepare": "bob build",
-		"typecheck": "tsc",
-		"lint": "eslint \"**/*.{js,ts,tsx}\"",
-		"release": "release-it --only-version"
-	},
-	"keywords": [
-		"react-native",
-		"ios",
-		"android"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/jafmatos/jam-bottomsheet.git"
-	},
-	"author": "José Anselmo Ferreira Matos <anselmojose297@gmail.com> (https://github.com/jafmatos)",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/jafmatos/jam-bottomsheet/issues"
-	},
-	"homepage": "https://github.com/jafmatos/jam-bottomsheet#readme",
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/"
-	},
-	"devDependencies": {
-		"@commitlint/config-conventional": "^20.5.0",
-		"@eslint/compat": "^2.0.3",
-		"@eslint/eslintrc": "^3.3.5",
-		"@eslint/js": "^10.0.1",
-		"@react-native/babel-preset": "0.85.0",
-		"@react-native/eslint-config": "0.85.0",
-		"@release-it/conventional-changelog": "^10.0.6",
-		"@types/react": "^19.2.0",
-		"commitlint": "^20.5.0",
-		"del-cli": "^7.0.0",
-		"eslint": "^10.2.1",
-		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-ft-flow": "^3.0.11",
-		"eslint-plugin-prettier": "^5.5.5",
-		"lefthook": "^2.1.4",
-		"prettier": "^3.8.1",
-		"react": "^19.2.3",
-		"react-native": "^0.85.0",
-		"react-native-builder-bob": "^0.41.0",
-		"react-native-gesture-handler": "^2.31.1",
-		"react-native-harness": "^1.1.0",
-		"react-native-keyboard-controller": "^1.21.6",
-		"react-native-reanimated": "^4.3.0",
-		"react-native-safe-area-context": "^5.7.0",
-		"react-native-worklets": "^0.8.1",
-		"release-it": "^19.2.4",
-		"tsconfig-paths": "^4.2.0",
-		"tscpaths": "^0.0.9",
-		"turbo": "^2.8.21",
-		"typescript": "^6.0.3"
-	},
-	"peerDependencies": {
-		"react": "*",
-		"react-native": "*",
-		"react-native-gesture-handler": "*",
-		"react-native-keyboard-controller": "*",
-		"react-native-reanimated": "*",
-		"react-native-safe-area-context": "*",
-		"react-native-worklets": "*"
-	},
-	"packageManager": "yarn@4.11.0",
-	"react-native-builder-bob": {
-		"source": "src",
-		"output": "lib",
-		"targets": [
-			[
-				"module",
-				{
-					"esm": true
-				}
-			],
-			[
-				"typescript",
-				{
-					"project": "tsconfig.build.json"
-				}
-			]
-		]
-	},
-	"prettier": {
-		"quoteProps": "consistent",
-		"singleQuote": true,
-		"tabWidth": 2,
-		"trailingComma": "es5",
-		"useTabs": false
-	},
-	"commitlint": {
-		"extends": [
-			"@commitlint/config-conventional"
-		]
-	},
-	"release-it": {
-		"git": {
-			"commitMessage": "chore: release ${version}",
-			"tagName": "v${version}"
-		},
-		"npm": {
-			"publish": true
-		},
-		"github": {
-			"release": true
-		},
-		"plugins": {
-			"@release-it/conventional-changelog": {
-				"preset": {
-					"name": "angular"
-				}
-			}
-		}
-	},
-	"create-react-native-library": {
-		"type": "library",
-		"languages": "js",
-		"tools": [
-			"eslint",
-			"jest",
-			"lefthook",
-			"release-it"
-		],
-		"version": "0.62.0"
-	},
-	"dependencies": {
-		"@react-native-community/cli": "^20.1.3",
-		"jest-cli": "^30.3.0"
-	}
+  "name": "jam-bottomsheet",
+  "version": "0.1.10",
+  "description": "A lightweight and highly customizable React Native bottom sheet",
+  "main": "./lib/module/index.js",
+  "types": "./lib/typescript/src/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.tsx",
+      "types": "./lib/typescript/src/index.d.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "lib",
+    "android",
+    "ios",
+    "cpp",
+    "README.md",
+    "*.podspec",
+    "react-native.config.js",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "scripts": {
+    "example": "yarn workspace jam-bottomsheet-example",
+    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
+    "prepare": "bob build",
+    "typecheck": "tsc",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "release": "release-it --only-version"
+  },
+  "keywords": [
+    "react-native",
+    "ios",
+    "android"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jafmatos/jam-bottomsheet.git"
+  },
+  "author": "José Anselmo Ferreira Matos <anselmojose297@gmail.com> (https://github.com/jafmatos)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jafmatos/jam-bottomsheet/issues"
+  },
+  "homepage": "https://github.com/jafmatos/jam-bottomsheet#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/compat": "^2.0.3",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
+    "@react-native/babel-preset": "0.85.0",
+    "@react-native/eslint-config": "0.85.0",
+    "@release-it/conventional-changelog": "^10.0.6",
+    "@types/react": "^19.2.0",
+    "commitlint": "^20.5.0",
+    "del-cli": "^7.0.0",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-ft-flow": "^3.0.11",
+    "eslint-plugin-prettier": "^5.5.5",
+    "lefthook": "^2.1.4",
+    "prettier": "^3.8.1",
+    "react": "^19.2.3",
+    "react-native": "^0.85.0",
+    "react-native-builder-bob": "^0.41.0",
+    "react-native-gesture-handler": "^2.31.1",
+    "react-native-harness": "^1.1.0",
+    "react-native-keyboard-controller": "^1.21.6",
+    "react-native-reanimated": "^4.3.0",
+    "react-native-safe-area-context": "^5.7.0",
+    "react-native-worklets": "^0.8.1",
+    "release-it": "^19.2.4",
+    "tsconfig-paths": "^4.2.0",
+    "tscpaths": "^0.0.9",
+    "turbo": "^2.8.21",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-gesture-handler": "*",
+    "react-native-keyboard-controller": "*",
+    "react-native-reanimated": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-worklets": "*"
+  },
+  "packageManager": "yarn@4.11.0",
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ],
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
+    ]
+  },
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "v${version}"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "angular"
+        }
+      }
+    }
+  },
+  "create-react-native-library": {
+    "type": "library",
+    "languages": "js",
+    "tools": [
+      "eslint",
+      "jest",
+      "lefthook",
+      "release-it"
+    ],
+    "version": "0.62.0"
+  },
+  "dependencies": {
+    "@react-native-community/cli": "^20.1.3",
+    "jest-cli": "^30.3.0"
+  }
 }

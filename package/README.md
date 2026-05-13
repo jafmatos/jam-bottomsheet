@@ -14,7 +14,10 @@ A lightweight and highly customizable React Native bottom sheet built with:
 Designed for smooth gestures, keyboard-aware interactions, expandable snap points, fullscreen presentations, and seamless nested scrolling.
 
 <p align="center">
-  <img src="./static/demo.gif" width="300" />
+  <img
+    src="https://github.com/jafmatos/jam-bottomsheet/raw/main/package/static/demo.gif"
+    width="300"
+  />
 </p>
 
 ---
