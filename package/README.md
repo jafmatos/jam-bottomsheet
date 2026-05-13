@@ -2,12 +2,19 @@
 
 A lightweight, highly customizable React Native bottom sheet built with:
 
-- react-native-reanimated
-- react-native-gesture-handler
-- react-native-keyboard-controller
-- react-native-worklets
+- `react-native-reanimated`
+- `react-native-gesture-handler`
+- `react-native-keyboard-controller`
+- `react-native-worklets`
 
-Designed for smooth gestures, keyboard awareness, fullscreen support, expandable snap points, and nested scrolling.
+Designed for smooth gestures, keyboard-aware interactions, expandable snap points, fullscreen presentations, and seamless nested scrolling.
+
+<p align="center">
+  <img
+    src="https://github.com/jafmatos/jam-bottomsheet/raw/main/package/static/demo.gif"
+    width="300"
+  />
+</p>
 
 ---
 

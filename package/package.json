@@ -1,7 +1,7 @@
 {
 	"name": "jam-bottomsheet",
-	"version": "0.1.4",
-	"description": "A highly interactive bottomsheet component for React Native environments",
+	"version": "0.1.10",
+	"description": "A lightweight and highly customizable React Native bottom sheet",
 	"main": "./lib/module/index.js",
 	"types": "./lib/typescript/src/index.d.ts",
 	"exports": {
@@ -18,6 +18,7 @@
 		"android",
 		"ios",
 		"cpp",
+		"README.md",
 		"*.podspec",
 		"react-native.config.js",
 		"!ios/build",
