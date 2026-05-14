@@ -29,25 +29,38 @@ export default function TestScreen() {
   const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheetRef>(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const openBottomSheetWithState = () => setIsBottomSheetOpen(true);
-  const closeBottomSheetWithState = () => setIsBottomSheetOpen(false);
-  const openBottomSheetWithRef = () => bottomSheetRef.current?.open();
-  const closeBottomSheetWithRef = () => bottomSheetRef.current?.close();
+
+  const openBottomSheetWithState = () => {
+    setIsBottomSheetOpen(true);
+  };
+
+  const closeBottomSheetWithState = () => {
+    setIsBottomSheetOpen(false);
+  };
+
+  const openBottomSheetWithRef = () => {
+    bottomSheetRef.current?.open(() => {
+      setIsBottomSheetOpen(true);
+    });
+  };
+
+  const closeBottomSheetWithRef = () => {
+    bottomSheetRef.current?.close(() => {
+      setIsBottomSheetOpen(false);
+    });
+  };
+
   const params = useGlobalSearchParams<{ props?: string }>();
 
-  const {
-    content = ContentOptions.Form,
-    useImperative = true,
-    ...bottomSheetProps
-  }: BottomSheetProps & { content?: ContentOptions; useImperative?: boolean } = useMemo(() => {
-    if (!params.props) return {};
+  const { content, useImperative, ...bottomSheetProps }: BottomSheetProps & { content?: ContentOptions; useImperative?: boolean } =
+    useMemo(() => {
+      if (!params.props) return {};
 
-    const decodedProps = decodeURIComponent(params.props);
-    const jsonProps = JSON.parse(decodedProps);
-    jsonProps.useImperative = true;
+      const decodedProps = decodeURIComponent(params.props);
+      const jsonProps = JSON.parse(decodedProps);
 
-    return jsonProps;
-  }, [params]);
+      return jsonProps;
+    }, [params]);
 
   const Content = useMemo(() => {
     return content ? contentMap.get(content) || EmptyContent : EmptyContent;
@@ -85,6 +98,7 @@ export default function TestScreen() {
             else openBottomSheetWithState();
           }}
         />
+				
         <Button
           testID="button_close-sheet"
           title="Close sheet"
@@ -95,7 +109,7 @@ export default function TestScreen() {
         />
       </View>
 
-      <BottomSheet ref={bottomSheetRef} isOpen={isBottomSheetOpen} onClose={closeBottomSheetWithState} expandable {...bottomSheetProps}>
+      <BottomSheet ref={bottomSheetRef} isOpen={isBottomSheetOpen} onClose={closeBottomSheetWithState} {...bottomSheetProps}>
         <Content />
       </BottomSheet>
     </View>

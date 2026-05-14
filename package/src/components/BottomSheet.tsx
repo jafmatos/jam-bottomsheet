@@ -48,8 +48,8 @@ export interface BottomSheetProps extends React.ComponentProps<
 }
 
 export interface BottomSheetRef {
-  open: () => void;
-  close: () => void;
+  open: (onEndAnimation?: () => void) => void;
+  close: (onEndAnimation?: () => void) => void;
 }
 
 const screenDimensions = Dimensions.get('screen');
@@ -187,58 +187,68 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
 
     const dismissKeyboard = () => Keyboard.dismiss();
 
-    const open = useCallback(() => {
-      'worklet';
+    const open = useCallback(
+      (onEndAnimation?: () => void) => {
+        'worklet';
 
-      isOpenSharedValue.value = true;
+        isOpenSharedValue.value = true;
 
-      setBottomSheetHeight(snapPointsCollapsed);
+        setBottomSheetHeight(snapPointsCollapsed);
 
-      backdropOpacitySharedValue.value = withSpring(backdropOpacity, {
-        duration: animationDuration,
-      });
-      bottomSheetTranslateYSharedValue.value = withSpring(
-        bottomSheetOpenedTranslateY,
-        { duration: animationDuration }
-      );
-    }, [
-      isOpenSharedValue,
-      setBottomSheetHeight,
-      snapPointsCollapsed,
-      backdropOpacitySharedValue,
-      backdropOpacity,
-      animationDuration,
-      bottomSheetTranslateYSharedValue,
-    ]);
+        backdropOpacitySharedValue.value = withSpring(backdropOpacity, {
+          duration: animationDuration,
+        });
+        bottomSheetTranslateYSharedValue.value = withSpring(
+          bottomSheetOpenedTranslateY,
+          { duration: animationDuration },
+          () => {
+            onEndAnimation && scheduleOnRN(onEndAnimation);
+          }
+        );
+      },
+      [
+        isOpenSharedValue,
+        setBottomSheetHeight,
+        snapPointsCollapsed,
+        backdropOpacitySharedValue,
+        backdropOpacity,
+        animationDuration,
+        bottomSheetTranslateYSharedValue,
+      ]
+    );
 
-    const close = useCallback(() => {
-      'worklet';
+    const close = useCallback(
+      (onEndAnimation?: () => void) => {
+        'worklet';
 
-      dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
+        dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
 
-      isOpenSharedValue.value = false;
-      isExpandedSharedValue.value = false;
+        isOpenSharedValue.value = false;
+        isExpandedSharedValue.value = false;
 
-      backdropOpacitySharedValue.value = withSpring(0, {
-        duration: animationDuration,
-      });
-      bottomSheetTranslateYSharedValue.value = withSpring(
+        backdropOpacitySharedValue.value = withSpring(0, {
+          duration: animationDuration,
+        });
+        bottomSheetTranslateYSharedValue.value = withSpring(
+          bottomSheetHeightSharedValue.value,
+          { duration: animationDuration },
+          () => {
+            onEndAnimation && scheduleOnRN(onEndAnimation);
+            props.onClose && scheduleOnRN(props.onClose);
+          }
+        );
+      },
+      [
+        isOpenSharedValue,
+        isExpandedSharedValue,
+        backdropOpacitySharedValue,
+        bottomSheetTranslateYSharedValue,
         bottomSheetHeightSharedValue.value,
-        { duration: animationDuration },
-        () => {
-          props.onClose && scheduleOnRN(props.onClose);
-        }
-      );
-    }, [
-      isOpenSharedValue,
-      isExpandedSharedValue,
-      backdropOpacitySharedValue,
-      bottomSheetTranslateYSharedValue,
-      bottomSheetHeightSharedValue.value,
-      dismissKeyboardOnClose,
-      animationDuration,
-      props.onClose,
-    ]);
+        dismissKeyboardOnClose,
+        animationDuration,
+        props.onClose,
+      ]
+    );
 
     const collapse = useCallback(() => {
       'worklet';
@@ -277,13 +287,15 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     ]);
 
     useEffect(() => {
-      props.isOpen ? scheduleOnUI(open) : scheduleOnUI(close);
-    }, [props.isOpen, open, close]);
+      if (props.isOpen) scheduleOnUI(open);
+    }, [props.isOpen, open]);
 
     useImperativeHandle(ref, () => {
       return {
-        open: () => scheduleOnUI(open),
-        close: () => scheduleOnUI(close),
+        open: (onEndAnimation?: Parameters<typeof open>[0]) =>
+          scheduleOnUI(() => open(onEndAnimation)),
+        close: (onEndAnimation?: Parameters<typeof close>[0]) =>
+          scheduleOnUI(() => close(onEndAnimation)),
       };
     }, [open, close]);
 

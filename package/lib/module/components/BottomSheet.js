@@ -93,7 +93,7 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     });
   }, [animationDuration, bottomSheetHeightSharedValue, calculateAvailableHeight]);
   const dismissKeyboard = () => Keyboard.dismiss();
-  const open = useCallback(() => {
+  const open = useCallback(onEndAnimation => {
     'worklet';
 
     isOpenSharedValue.value = true;
@@ -103,9 +103,11 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     });
     bottomSheetTranslateYSharedValue.value = withSpring(bottomSheetOpenedTranslateY, {
       duration: animationDuration
+    }, () => {
+      onEndAnimation && scheduleOnRN(onEndAnimation);
     });
   }, [isOpenSharedValue, setBottomSheetHeight, snapPointsCollapsed, backdropOpacitySharedValue, backdropOpacity, animationDuration, bottomSheetTranslateYSharedValue]);
-  const close = useCallback(() => {
+  const close = useCallback(onEndAnimation => {
     'worklet';
 
     dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
@@ -117,6 +119,7 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     bottomSheetTranslateYSharedValue.value = withSpring(bottomSheetHeightSharedValue.value, {
       duration: animationDuration
     }, () => {
+      onEndAnimation && scheduleOnRN(onEndAnimation);
       props.onClose && scheduleOnRN(props.onClose);
     });
   }, [isOpenSharedValue, isExpandedSharedValue, backdropOpacitySharedValue, bottomSheetTranslateYSharedValue, bottomSheetHeightSharedValue.value, dismissKeyboardOnClose, animationDuration, props.onClose]);
@@ -139,12 +142,12 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     isExpandedSharedValue.value = true;
   }, [animationDuration, bottomSheetTranslateYSharedValue, isExpandedSharedValue, setBottomSheetHeightAnimated, snapPointsExpanded]);
   useEffect(() => {
-    props.isOpen ? scheduleOnUI(open) : scheduleOnUI(close);
-  }, [props.isOpen, open, close]);
+    if (props.isOpen) scheduleOnUI(open);
+  }, [props.isOpen, open]);
   useImperativeHandle(ref, () => {
     return {
-      open: () => scheduleOnUI(open),
-      close: () => scheduleOnUI(close)
+      open: onEndAnimation => scheduleOnUI(() => open(onEndAnimation)),
+      close: onEndAnimation => scheduleOnUI(() => close(onEndAnimation))
     };
   }, [open, close]);
   useKeyboardHandler({

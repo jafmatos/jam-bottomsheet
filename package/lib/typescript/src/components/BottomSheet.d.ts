@@ -24,8 +24,8 @@ export interface BottomSheetProps extends React.ComponentProps<typeof Animated.V
     scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
 }
 export interface BottomSheetRef {
-    open: () => void;
-    close: () => void;
+    open: (onEndAnimation?: () => void) => void;
+    close: (onEndAnimation?: () => void) => void;
 }
 export declare const BOTTOMSHEET_DEFAULT_PROPS: Pick<Required<BottomSheetProps>, 'expandable' | 'fullscreen' | 'snapPointsCollapsed' | 'backdropOpacity' | 'backdropColor' | 'backgroundColor' | 'borderRadius' | 'handleColor' | 'hideHandle' | 'panSnapPoints' | 'animationDuration' | 'closeOnBackdropTap' | 'captureGestureOnScrollStart' | 'captureGestureOnScrollEnd' | 'dismissKeyboardOnClose'>;
 export declare const BottomSheet: React.ForwardRefExoticComponent<Omit<BottomSheetProps, "ref"> & React.RefAttributes<BottomSheetRef>>;

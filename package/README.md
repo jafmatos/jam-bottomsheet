@@ -139,7 +139,15 @@ export default function App() {
   const bottomSheetRef = React.useRef<BottomSheetRef>(null);
 
   const openBottomSheet = () => {
-	  bottomSheetRef.current?.open();
+    bottomSheetRef.current?.open(() => {
+      console.log("Bottom sheet fully opened");
+    });
+  };
+
+  const closeBottomSheet = () => {
+    bottomSheetRef.current?.close(() => {
+      console.log("Bottom sheet fully closed");
+    });
   };
 
   return (
@@ -147,6 +155,11 @@ export default function App() {
       <Button
         title="Open Bottom Sheet"
         onPress={openBottomSheet}
+      />
+
+      <Button
+        title="Close Bottom Sheet"
+        onPress={closeBottomSheet}
       />
 
       <BottomSheet ref={bottomSheetRef}>

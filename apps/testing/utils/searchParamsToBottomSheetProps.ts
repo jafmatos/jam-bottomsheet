@@ -18,6 +18,9 @@ export const searchParamsToBottomSheetProps = (params: BottomSheetPropsAsString)
     hideHandle: params.hideHandle ? params.hideHandle === "true" : undefined,
     animationDuration: params.animationDuration ? Number(params.animationDuration) : undefined,
     closeOnBackdropTap: params.closeOnBackdropTap ? params.closeOnBackdropTap === "true" : undefined,
+    captureGestureOnScrollStart: params.captureGestureOnScrollStart ? params.captureGestureOnScrollStart === "true" : undefined,
+    captureGestureOnScrollEnd: params.captureGestureOnScrollEnd ? params.captureGestureOnScrollEnd === "true" : undefined,
+    dismissKeyboardOnClose: params.dismissKeyboardOnClose ? params.dismissKeyboardOnClose === "true" : undefined,
     panSnapPoints: params.panSnapPoints ? Number(params.panSnapPoints) : undefined,
   };
 };
