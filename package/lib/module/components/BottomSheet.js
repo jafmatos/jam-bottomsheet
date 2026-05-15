@@ -13,6 +13,7 @@ const screenDimensions = Dimensions.get('screen');
 const SCREEN_HEIGHT = screenDimensions.height;
 const SCREEN_WIDTH = screenDimensions.width;
 export const BOTTOMSHEET_DEFAULT_PROPS = {
+  imperative: false,
   expandable: false,
   fullscreen: false,
   snapPointsCollapsed: 400,
@@ -30,6 +31,7 @@ export const BOTTOMSHEET_DEFAULT_PROPS = {
   dismissKeyboardOnClose: true
 };
 export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
+  imperative = BOTTOMSHEET_DEFAULT_PROPS.imperative,
   expandable = BOTTOMSHEET_DEFAULT_PROPS.expandable,
   fullscreen = BOTTOMSHEET_DEFAULT_PROPS.fullscreen,
   snapPointsCollapsed = BOTTOMSHEET_DEFAULT_PROPS.snapPointsCollapsed,
@@ -79,7 +81,7 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     'worklet';
 
     return Math.min(targetHeight, snapPointsScreen - keyboardHeightSharedValue.value);
-  }, [keyboardHeightSharedValue.value, snapPointsScreen]);
+  }, [keyboardHeightSharedValue, snapPointsScreen]);
   const setBottomSheetHeight = useCallback(height => {
     'worklet';
 
@@ -93,24 +95,30 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     });
   }, [animationDuration, bottomSheetHeightSharedValue, calculateAvailableHeight]);
   const dismissKeyboard = () => Keyboard.dismiss();
-  const open = useCallback(onEndAnimation => {
+  const open = useCallback(hooks => {
     'worklet';
 
     isOpenSharedValue.value = true;
+    props.onOpenAnimationStarted && scheduleOnRN(props.onOpenAnimationStarted);
+    hooks?.onStarted && scheduleOnRN(hooks?.onStarted);
     setBottomSheetHeight(snapPointsCollapsed);
     backdropOpacitySharedValue.value = withSpring(backdropOpacity, {
       duration: animationDuration
     });
     bottomSheetTranslateYSharedValue.value = withSpring(bottomSheetOpenedTranslateY, {
       duration: animationDuration
-    }, () => {
-      onEndAnimation && scheduleOnRN(onEndAnimation);
+    }, finished => {
+      if (!finished) return;
+      props.onOpenAnimationFinished && scheduleOnRN(props.onOpenAnimationFinished);
+      hooks?.onFinished && scheduleOnRN(hooks?.onFinished);
     });
-  }, [isOpenSharedValue, setBottomSheetHeight, snapPointsCollapsed, backdropOpacitySharedValue, backdropOpacity, animationDuration, bottomSheetTranslateYSharedValue]);
-  const close = useCallback(onEndAnimation => {
+  }, [isOpenSharedValue, props.onOpenAnimationStarted, props.onOpenAnimationFinished, setBottomSheetHeight, snapPointsCollapsed, backdropOpacitySharedValue, backdropOpacity, animationDuration, bottomSheetTranslateYSharedValue]);
+  const close = useCallback(hooks => {
     'worklet';
 
     dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
+    props.onCloseAnimationStarted && scheduleOnRN(props.onCloseAnimationStarted);
+    hooks?.onStarted && scheduleOnRN(hooks?.onStarted);
     isOpenSharedValue.value = false;
     isExpandedSharedValue.value = false;
     backdropOpacitySharedValue.value = withSpring(0, {
@@ -118,11 +126,12 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     });
     bottomSheetTranslateYSharedValue.value = withSpring(bottomSheetHeightSharedValue.value, {
       duration: animationDuration
-    }, () => {
-      onEndAnimation && scheduleOnRN(onEndAnimation);
-      props.onClose && scheduleOnRN(props.onClose);
+    }, finished => {
+      if (!finished) return;
+      props.onCloseAnimationFinished && scheduleOnRN(props.onCloseAnimationFinished);
+      hooks?.onFinished && scheduleOnRN(hooks?.onFinished);
     });
-  }, [isOpenSharedValue, isExpandedSharedValue, backdropOpacitySharedValue, bottomSheetTranslateYSharedValue, bottomSheetHeightSharedValue.value, dismissKeyboardOnClose, animationDuration, props.onClose]);
+  }, [dismissKeyboardOnClose, props.onCloseAnimationStarted, props.onCloseAnimationFinished, isOpenSharedValue, isExpandedSharedValue, backdropOpacitySharedValue, animationDuration, bottomSheetTranslateYSharedValue, bottomSheetHeightSharedValue]);
   const collapse = useCallback(() => {
     'worklet';
 
@@ -141,15 +150,23 @@ export const BottomSheet = /*#__PURE__*/React.forwardRef(function BottomSheet({
     });
     isExpandedSharedValue.value = true;
   }, [animationDuration, bottomSheetTranslateYSharedValue, isExpandedSharedValue, setBottomSheetHeightAnimated, snapPointsExpanded]);
+  const initializeControlledAnimation = useCallback(() => {
+    'worklet';
+
+    if (imperative) return;
+    if (props.isOpen && !isOpenSharedValue.value) open();
+    if (!props.isOpen && isOpenSharedValue.value) close();
+  }, [imperative, props.isOpen, isOpenSharedValue, open, close]);
   useEffect(() => {
-    if (props.isOpen) scheduleOnUI(open);
-  }, [props.isOpen, open]);
+    scheduleOnUI(initializeControlledAnimation);
+  }, [initializeControlledAnimation]);
   useImperativeHandle(ref, () => {
+    if (!imperative) return {};
     return {
-      open: onEndAnimation => scheduleOnUI(() => open(onEndAnimation)),
-      close: onEndAnimation => scheduleOnUI(() => close(onEndAnimation))
+      open: (...args) => scheduleOnUI(() => open(...args)),
+      close: (...args) => scheduleOnUI(() => close(...args))
     };
-  }, [open, close]);
+  }, [imperative, open, close]);
   useKeyboardHandler({
     onStart: () => {
       'worklet';

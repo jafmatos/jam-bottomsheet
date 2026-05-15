@@ -39,28 +39,27 @@ export default function TestScreen() {
   };
 
   const openBottomSheetWithRef = () => {
-    bottomSheetRef.current?.open(() => {
-      setIsBottomSheetOpen(true);
-    });
+    bottomSheetRef.current?.open();
   };
 
   const closeBottomSheetWithRef = () => {
-    bottomSheetRef.current?.close(() => {
-      setIsBottomSheetOpen(false);
-    });
+    bottomSheetRef.current?.close();
   };
 
   const params = useGlobalSearchParams<{ props?: string }>();
 
-  const { content, useImperative, ...bottomSheetProps }: BottomSheetProps & { content?: ContentOptions; useImperative?: boolean } =
-    useMemo(() => {
-      if (!params.props) return {};
+  const {
+    content,
+    useImperative,
+    ...bottomSheetProps
+  }: Omit<BottomSheetProps, "isOpen" | "imperative"> & { content?: ContentOptions; useImperative?: boolean } = useMemo(() => {
+    if (!params.props) return {};
 
-      const decodedProps = decodeURIComponent(params.props);
-      const jsonProps = JSON.parse(decodedProps);
+    const decodedProps = decodeURIComponent(params.props);
+    const jsonProps = JSON.parse(decodedProps);
 
-      return jsonProps;
-    }, [params]);
+    return jsonProps;
+  }, [params]);
 
   const Content = useMemo(() => {
     return content ? contentMap.get(content) || EmptyContent : EmptyContent;
@@ -98,7 +97,7 @@ export default function TestScreen() {
             else openBottomSheetWithState();
           }}
         />
-				
+
         <Button
           testID="button_close-sheet"
           title="Close sheet"
@@ -109,9 +108,15 @@ export default function TestScreen() {
         />
       </View>
 
-      <BottomSheet ref={bottomSheetRef} isOpen={isBottomSheetOpen} onClose={closeBottomSheetWithState} {...bottomSheetProps}>
-        <Content />
-      </BottomSheet>
+      {useImperative ? (
+        <BottomSheet imperative {...bottomSheetProps} ref={bottomSheetRef}>
+          <Content />
+        </BottomSheet>
+      ) : (
+        <BottomSheet {...bottomSheetProps} isOpen={isBottomSheetOpen} onCloseAnimationFinished={closeBottomSheetWithState}>
+          <Content />
+        </BottomSheet>
+      )}
     </View>
   );
 }

@@ -22,11 +22,37 @@ import { useKeyboardHandler } from 'react-native-keyboard-controller';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-export interface BottomSheetProps extends React.ComponentProps<
+export type BottomSheetAnimationCallback = () => void;
+
+export interface BottomSheetAnimationHooks {
+  onStarted?: BottomSheetAnimationCallback;
+  onFinished?: BottomSheetAnimationCallback;
+}
+
+export interface BottomSheetRef {
+  open: (hooks?: BottomSheetAnimationHooks) => void;
+  close: (hooks?: BottomSheetAnimationHooks) => void;
+}
+
+export interface BottomSheetControlledProps {
+  imperative?: false;
+  isOpen: boolean;
+  onCloseAnimationFinished: Required<BottomSheetCommonProps>['onCloseAnimationFinished'];
+}
+
+export interface BottomSheetImperativeProps {
+  imperative: true;
+  isOpen?: never;
+}
+
+export interface BottomSheetCommonProps extends React.ComponentProps<
   typeof Animated.View
 > {
   isOpen?: boolean;
-  onClose?: () => void;
+  onOpenAnimationStarted?: BottomSheetAnimationCallback;
+  onOpenAnimationFinished?: BottomSheetAnimationCallback;
+  onCloseAnimationStarted?: BottomSheetAnimationCallback;
+  onCloseAnimationFinished?: BottomSheetAnimationCallback;
   children?: React.ReactNode;
   expandable?: boolean;
   fullscreen?: boolean;
@@ -47,10 +73,14 @@ export interface BottomSheetProps extends React.ComponentProps<
   scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
 }
 
-export interface BottomSheetRef {
-  open: (onEndAnimation?: () => void) => void;
-  close: (onEndAnimation?: () => void) => void;
-}
+export type BottomSheetProps =
+  | (Omit<
+      BottomSheetCommonProps,
+      'imperative' | 'isOpen' | 'onCloseAnimationFinished'
+    > &
+      BottomSheetControlledProps)
+  | (Omit<BottomSheetCommonProps, 'imperative' | 'isOpen'> &
+      BottomSheetImperativeProps);
 
 const screenDimensions = Dimensions.get('screen');
 const SCREEN_HEIGHT = screenDimensions.height;
@@ -58,6 +88,7 @@ const SCREEN_WIDTH = screenDimensions.width;
 
 export const BOTTOMSHEET_DEFAULT_PROPS: Pick<
   Required<BottomSheetProps>,
+  | 'imperative'
   | 'expandable'
   | 'fullscreen'
   | 'snapPointsCollapsed'
@@ -74,6 +105,7 @@ export const BOTTOMSHEET_DEFAULT_PROPS: Pick<
   | 'captureGestureOnScrollEnd'
   | 'dismissKeyboardOnClose'
 > = {
+  imperative: false,
   expandable: false,
   fullscreen: false,
   snapPointsCollapsed: 400,
@@ -94,6 +126,7 @@ export const BOTTOMSHEET_DEFAULT_PROPS: Pick<
 export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
   function BottomSheet(
     {
+      imperative = BOTTOMSHEET_DEFAULT_PROPS.imperative,
       expandable = BOTTOMSHEET_DEFAULT_PROPS.expandable,
       fullscreen = BOTTOMSHEET_DEFAULT_PROPS.fullscreen,
       snapPointsCollapsed = BOTTOMSHEET_DEFAULT_PROPS.snapPointsCollapsed,
@@ -157,7 +190,7 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
           snapPointsScreen - keyboardHeightSharedValue.value
         );
       },
-      [keyboardHeightSharedValue.value, snapPointsScreen]
+      [keyboardHeightSharedValue, snapPointsScreen]
     );
 
     const setBottomSheetHeight = useCallback(
@@ -188,10 +221,14 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     const dismissKeyboard = () => Keyboard.dismiss();
 
     const open = useCallback(
-      (onEndAnimation?: () => void) => {
+      (hooks?: BottomSheetAnimationHooks) => {
         'worklet';
 
         isOpenSharedValue.value = true;
+
+        props.onOpenAnimationStarted &&
+          scheduleOnRN(props.onOpenAnimationStarted);
+        hooks?.onStarted && scheduleOnRN(hooks?.onStarted);
 
         setBottomSheetHeight(snapPointsCollapsed);
 
@@ -201,13 +238,19 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
         bottomSheetTranslateYSharedValue.value = withSpring(
           bottomSheetOpenedTranslateY,
           { duration: animationDuration },
-          () => {
-            onEndAnimation && scheduleOnRN(onEndAnimation);
+          (finished) => {
+            if (!finished) return;
+
+            props.onOpenAnimationFinished &&
+              scheduleOnRN(props.onOpenAnimationFinished);
+            hooks?.onFinished && scheduleOnRN(hooks?.onFinished);
           }
         );
       },
       [
         isOpenSharedValue,
+        props.onOpenAnimationStarted,
+        props.onOpenAnimationFinished,
         setBottomSheetHeight,
         snapPointsCollapsed,
         backdropOpacitySharedValue,
@@ -218,10 +261,14 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
     );
 
     const close = useCallback(
-      (onEndAnimation?: () => void) => {
+      (hooks?: BottomSheetAnimationHooks) => {
         'worklet';
 
         dismissKeyboardOnClose && scheduleOnRN(dismissKeyboard);
+
+        props.onCloseAnimationStarted &&
+          scheduleOnRN(props.onCloseAnimationStarted);
+        hooks?.onStarted && scheduleOnRN(hooks?.onStarted);
 
         isOpenSharedValue.value = false;
         isExpandedSharedValue.value = false;
@@ -232,21 +279,25 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
         bottomSheetTranslateYSharedValue.value = withSpring(
           bottomSheetHeightSharedValue.value,
           { duration: animationDuration },
-          () => {
-            onEndAnimation && scheduleOnRN(onEndAnimation);
-            props.onClose && scheduleOnRN(props.onClose);
+          (finished) => {
+            if (!finished) return;
+
+            props.onCloseAnimationFinished &&
+              scheduleOnRN(props.onCloseAnimationFinished);
+            hooks?.onFinished && scheduleOnRN(hooks?.onFinished);
           }
         );
       },
       [
+        dismissKeyboardOnClose,
+        props.onCloseAnimationStarted,
+        props.onCloseAnimationFinished,
         isOpenSharedValue,
         isExpandedSharedValue,
         backdropOpacitySharedValue,
-        bottomSheetTranslateYSharedValue,
-        bottomSheetHeightSharedValue.value,
-        dismissKeyboardOnClose,
         animationDuration,
-        props.onClose,
+        bottomSheetTranslateYSharedValue,
+        bottomSheetHeightSharedValue,
       ]
     );
 
@@ -286,18 +337,28 @@ export const BottomSheet = React.forwardRef<BottomSheetRef, BottomSheetProps>(
       snapPointsExpanded,
     ]);
 
+    const initializeControlledAnimation = useCallback(() => {
+      'worklet';
+
+      if (imperative) return;
+      if (props.isOpen && !isOpenSharedValue.value) open();
+      if (!props.isOpen && isOpenSharedValue.value) close();
+    }, [imperative, props.isOpen, isOpenSharedValue, open, close]);
+
     useEffect(() => {
-      if (props.isOpen) scheduleOnUI(open);
-    }, [props.isOpen, open]);
+      scheduleOnUI(initializeControlledAnimation);
+    }, [initializeControlledAnimation]);
 
     useImperativeHandle(ref, () => {
+      if (!imperative) return {} as BottomSheetRef;
+
       return {
-        open: (onEndAnimation?: Parameters<typeof open>[0]) =>
-          scheduleOnUI(() => open(onEndAnimation)),
-        close: (onEndAnimation?: Parameters<typeof close>[0]) =>
-          scheduleOnUI(() => close(onEndAnimation)),
+        open: (...args: Parameters<typeof open>) =>
+          scheduleOnUI(() => open(...args)),
+        close: (...args: Parameters<typeof close>) =>
+          scheduleOnUI(() => close(...args)),
       };
-    }, [open, close]);
+    }, [imperative, open, close]);
 
     useKeyboardHandler(
       {

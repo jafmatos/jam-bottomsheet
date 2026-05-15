@@ -1,47 +1,48 @@
 {
-	"expo": {
-		"name": "testing",
-		"slug": "testing",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"scheme": "testing",
-		"userInterfaceStyle": "automatic",
-		"ios": {
-			"supportsTablet": true
-		},
-		"android": {
-			"adaptiveIcon": {
-				"backgroundColor": "#E6F4FE"
-			},
-			"predictiveBackGestureEnabled": false,
-			"package": "com.jaf.matos.testing"
-		},
-		"web": {
-			"output": "static"
-		},
-		"plugins": [
-			"expo-router",
-			[
-				"expo-splash-screen",
-				{
-					"image": "./assets/images/splash-icon.png",
-					"backgroundColor": "#ffffff",
-					"imageWidth": 200,
-					"dark": {
-						"backgroundColor": "#000000"
-					}
-				}
-			]
-		],
-		"experiments": {
-			"typedRoutes": true,
-			"reactCompiler": true
-		},
-		"extra": {
-			"router": {},
-			"eas": {
-				"projectId": "ac786d8f-50b9-4ce4-b09d-7e82884cff00"
-			}
-		}
-	}
+  "expo": {
+    "name": "testing",
+    "slug": "testing",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "testing",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jaf.matos.testing"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.jaf.matos.testing"
+    },
+    "web": {
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "backgroundColor": "#ffffff",
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ac786d8f-50b9-4ce4-b09d-7e82884cff00"
+      }
+    }
+  }
 }
