@@ -34,20 +34,10 @@ export interface BottomSheetRef {
   close: (hooks?: BottomSheetAnimationHooks) => void;
 }
 
-export interface BottomSheetControlledProps {
-  imperative?: false;
-  isOpen: boolean;
-  onCloseAnimationFinished: Required<BottomSheetCommonProps>['onCloseAnimationFinished'];
-}
-
-export interface BottomSheetImperativeProps {
-  imperative: true;
-  isOpen?: never;
-}
-
 export interface BottomSheetCommonProps extends React.ComponentProps<
   typeof Animated.View
 > {
+  imperative?: boolean;
   isOpen?: boolean;
   onOpenAnimationStarted?: BottomSheetAnimationCallback;
   onOpenAnimationFinished?: BottomSheetAnimationCallback;
@@ -73,14 +63,26 @@ export interface BottomSheetCommonProps extends React.ComponentProps<
   scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
 }
 
+export type BottomSheetControlledProps = Omit<
+  BottomSheetCommonProps,
+  'imperative' | 'isOpen' | 'onCloseAnimationFinished'
+> & {
+  imperative?: false;
+  isOpen: boolean;
+  onCloseAnimationFinished: Required<BottomSheetCommonProps>['onCloseAnimationFinished'];
+};
+
+export type BottomSheetImperativeProps = Omit<
+  BottomSheetCommonProps,
+  'imperative' | 'isOpen'
+> & {
+  imperative: true;
+  isOpen?: never;
+};
+
 export type BottomSheetProps =
-  | (Omit<
-      BottomSheetCommonProps,
-      'imperative' | 'isOpen' | 'onCloseAnimationFinished'
-    > &
-      BottomSheetControlledProps)
-  | (Omit<BottomSheetCommonProps, 'imperative' | 'isOpen'> &
-      BottomSheetImperativeProps);
+  | BottomSheetControlledProps
+  | BottomSheetImperativeProps;
 
 const screenDimensions = Dimensions.get('screen');
 const SCREEN_HEIGHT = screenDimensions.height;
