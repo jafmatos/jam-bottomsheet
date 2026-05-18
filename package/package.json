@@ -1,6 +1,6 @@
 {
   "name": "jam-bottomsheet",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "A lightweight and highly customizable React Native bottom sheet",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",

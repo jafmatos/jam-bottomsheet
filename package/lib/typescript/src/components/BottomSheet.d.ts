@@ -10,16 +10,8 @@ export interface BottomSheetRef {
     open: (hooks?: BottomSheetAnimationHooks) => void;
     close: (hooks?: BottomSheetAnimationHooks) => void;
 }
-export interface BottomSheetControlledProps {
-    imperative?: false;
-    isOpen: boolean;
-    onCloseAnimationFinished: Required<BottomSheetCommonProps>['onCloseAnimationFinished'];
-}
-export interface BottomSheetImperativeProps {
-    imperative: true;
-    isOpen?: never;
-}
 export interface BottomSheetCommonProps extends React.ComponentProps<typeof Animated.View> {
+    imperative?: boolean;
     isOpen?: boolean;
     onOpenAnimationStarted?: BottomSheetAnimationCallback;
     onOpenAnimationFinished?: BottomSheetAnimationCallback;
@@ -44,7 +36,16 @@ export interface BottomSheetCommonProps extends React.ComponentProps<typeof Anim
     captureGestureOnScrollEnd?: boolean;
     scrollViewContentContainerProps?: React.ComponentProps<typeof ScrollView>;
 }
-export type BottomSheetProps = (Omit<BottomSheetCommonProps, 'imperative' | 'isOpen' | 'onCloseAnimationFinished'> & BottomSheetControlledProps) | (Omit<BottomSheetCommonProps, 'imperative' | 'isOpen'> & BottomSheetImperativeProps);
+export type BottomSheetControlledProps = Omit<BottomSheetCommonProps, 'imperative' | 'isOpen' | 'onCloseAnimationFinished'> & {
+    imperative?: false;
+    isOpen: boolean;
+    onCloseAnimationFinished: Required<BottomSheetCommonProps>['onCloseAnimationFinished'];
+};
+export type BottomSheetImperativeProps = Omit<BottomSheetCommonProps, 'imperative' | 'isOpen'> & {
+    imperative: true;
+    isOpen?: never;
+};
+export type BottomSheetProps = BottomSheetControlledProps | BottomSheetImperativeProps;
 export declare const BOTTOMSHEET_DEFAULT_PROPS: Pick<Required<BottomSheetProps>, 'imperative' | 'expandable' | 'fullscreen' | 'snapPointsCollapsed' | 'backdropOpacity' | 'backdropColor' | 'backgroundColor' | 'borderRadius' | 'handleColor' | 'hideHandle' | 'panSnapPoints' | 'animationDuration' | 'closeOnBackdropTap' | 'captureGestureOnScrollStart' | 'captureGestureOnScrollEnd' | 'dismissKeyboardOnClose'>;
-export declare const BottomSheet: React.ForwardRefExoticComponent<(Omit<Omit<BottomSheetCommonProps, "onCloseAnimationFinished" | "isOpen" | "imperative"> & BottomSheetControlledProps, "ref"> | Omit<Omit<BottomSheetCommonProps, "isOpen" | "imperative"> & BottomSheetImperativeProps, "ref">) & React.RefAttributes<BottomSheetRef>>;
+export declare const BottomSheet: React.ForwardRefExoticComponent<(Omit<BottomSheetControlledProps, "ref"> | Omit<BottomSheetImperativeProps, "ref">) & React.RefAttributes<BottomSheetRef>>;
 //# sourceMappingURL=BottomSheet.d.ts.map
